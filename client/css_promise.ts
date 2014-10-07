@@ -94,7 +94,9 @@ export function transitionHide($el: JQuery, klasses: string, timeout: number = 1
     var display = $el.css('display');
     $el.css('display', display);
     var end = transitionEnd($el)
-    end.timeout(timeout).finally(() => {
+    end.timeout(timeout)
+    .catch(() => {})
+    .finally(() => {
         $el.css('display', '');
     });
     changeClass($el, klasses);

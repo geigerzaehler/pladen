@@ -87,6 +87,10 @@ class ArtistsView extends View {
     private _filter: {pattern: string; download: boolean};
 }
 
+
+/**
+ * Display the artist name and the list of albums and tracks
+ */
 class ArtistView extends DataTemplateView {
     get elementTemplate() {
         return '<li class=artist>';

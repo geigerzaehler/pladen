@@ -14,6 +14,14 @@ This will use the data from the `fixtures` folder to fire up a server
 at `http://localshost:3000`.
 
 
+Building
+--------
+
+To build the server and the web application your first need to setup
+your build system with `make build-deps`. You can then run `make all`
+to build the application.
+
+
 Development
 -----------
 

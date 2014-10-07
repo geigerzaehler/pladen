@@ -15,7 +15,7 @@ ASSETS = assets
 
 first: all
 
-all: web server
+all: client server
 
 
 # DEVELOPMENT AND DEPLOYMENT
@@ -27,10 +27,8 @@ deploy: web
 	rsync --archive assets webmaster@maboite.org:www/pladen
 
 
-# Install tools and utilities required for development
-dev-deps: server-deps
-	npm install
-	bower install
+# Install tools and utilities required for building the application
+build-deps: server-deps client-deps
 
 docs:
 	cabal haddock --executables
@@ -55,41 +53,54 @@ codex.tags: $(CABAL_DEPS)
 
 # BROWSER APPLICATION
 #
-# Compiles the styles with SASS and the client with TypeScript,
-# CoffeeScript and RequireJS.
+# Compiles the styles with Sass and the client with TypeScript,
+# CoffeeScript and RequireJS. Creates the targets in the assets
+# directory.
 
-web: styles client
+
+# Install the tools and vendor libraries that are required to build the
+# client
+.PHONY: client-deps
+client-deps:
+	npm install
+	bower install
+	which sass || gem install sass
+
+
+client: styles webapp
 
 # TypeScript and CoffeeScript files in the 'client' directory that make
 # up the browser application and have to be compiled to JavaScript.
-CLIENT_SOURCES=$(filter-out %.d.ts,\
+WEBAPP_SOURCES=$(filter-out %.d.ts,\
                  $(shell find client -name '*.coffee' -or -name '*.ts'))
 
 # JavaScript files that are generated from the client sources
-CLIENT_TARGETS:=$(CLIENT_SOURCES:%.coffee=%.js)
-CLIENT_TARGETS:=$(CLIENT_TARGETS:%.ts=%.js)
+WEBAPP_TARGETS:=$(WEBAPP_SOURCES:%.coffee=%.js)
+WEBAPP_TARGETS:=$(WEBAPP_TARGETS:%.ts=%.js)
 
 # Compiled client side application for production
-BOOT = $(ASSETS)/boot.js
+WEBAPP = $(ASSETS)/boot.js
 
-# The development application only contains vendor code and RequireJS
-# to load the client code.
-BOOT_DEV = $(ASSETS)/boot.dev.js
+# Vendor components that are included in the webapp builds.
 BOWER_COMPONENTS = $(shell find bower_components -name .bower.json)
 
-
-client: $(BOOT)
+webapp: $(WEBAPP)
 
 # Link the client javascript file into a bundle using RequireJS
-$(BOOT): $(AMD_BUILD) $(CLIENT_TARGETS)
+$(WEBAPP): $(AMD_BUILD) $(WEBAPP_TARGETS) $(BOWER_COMPONENTS)
 	$< client $@
 
 
-client-dev: $(CLIENT_TARGETS) $(BOOT_DEV)
+# The development application only contains vendor. RequireJS loads the
+# client code from the `client` directory.
+WEBAPP_DEV = $(ASSETS)/boot.dev.js
 
-$(BOOT_DEV) $(BOOT): $(BOWER_COMPONENTS)
-$(BOOT_DEV): $(AMD_BUILD)
+webapp-dev: $(WEBAPP_DEV) $(WEBAPP_TARGETS)
+
+$(WEBAPP_DEV): $(AMD_BUILD) $(BOWER_COMPONENTS)
 	$< vendor $@
+
+# Rules
 
 %.js: %.coffee
 	coffee --compile $<
@@ -108,7 +119,10 @@ STYLE_INCLUDES = $(shell find styles -type f) $(ICOMOON_STYLE)
 styles: $(STYLE) icomoon
 
 $(STYLE): $(STYLE_MAIN_SOURCE) $(STYLE_INCLUDES)
-	scss --load-path styles --require ./styles/functions.rb $< $@
+	scss --load-path styles \
+		   --require ./styles/functions.rb \
+			 --style compressed \
+			 $< $@
 	$(CSS_PREFIXER) $@
 
 # IcoMoon fonts and styles will be added to the assets

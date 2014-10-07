@@ -1,8 +1,11 @@
 #!/usr/bin/env coffee
+#
+# A development tool that rebuilds make targets when source files
+# change. It also reloads the browser
 
 createWatcher = require('../../everybreath')
 frish = require('frish')
-{runner, worker}  = require('../../schaffen')
+{runner, worker}  = require('schaffen')
 
 
 ignore = [
@@ -14,46 +17,41 @@ ignore = [
   /~$/
   /^dist/
 ]
-watcher = createWatcher('.', ignore, throttle: 400)
-watch = watcher.watch.bind(watcher)
-
+{watch} = createWatcher('.', ignore, throttle: 400)
 
 registerWorker = (worker)->
   process.on 'exit', -> worker.stop()
   worker.start()
 
 
-
 # Tags
-tags = runner('make tags').debounced
-watch 'Pladen/**/*.hs', -> tags()
+tags = runner('make tags', silent: false)
+watch 'Pladen/**/*.hs', tags
 
 
 # Development server
-# server = worker 'bin/server-dev'
-# watch('Pladen/**/*.hs', server.restart)
-# registerWorker(server)
+server = worker 'cabal run'
+watch('Pladen/**/*.hs', server.restart)
+registerWorker(server)
 
 
 # Reload browser
 {reload} = frish(3008)
 # server.on('restart', reload)
-watch('static/assets/styles.css', 'views', 'client/**/*.js', reload)
+watch('assets', 'client/**/*.js', reload)
 
 
 # Styles
-styles = runner('make styles').debounced
-watch 'styles/*', -> styles()
+styles = runner('make styles')
+watch 'styles/**/*.scss', styles
 
 
 # Lint
-coffeelint = runner 'coffeelint --quiet'
+coffeelint = runner 'coffeelint', '--quiet', '{}'
 watch('**/*.coffee', coffeelint)
 
 
-# Build client
-buildClient = runner('make client-dev').debounced
+# Web Application
+webapp = runner('make webapp-dev')
 
-watch 'client/**/*.coffee', 'client/**/*.ts'
-, 'bower.json', 'package.json', 'views'
-, -> buildClient()
+watch 'client/**/*.coffee', 'client/**/*.ts', 'bower.json', webapp

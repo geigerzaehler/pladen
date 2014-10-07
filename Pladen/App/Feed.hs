@@ -20,7 +20,8 @@ import System.Locale (defaultTimeLocale)
 
 import Text.XML
 
-import Network.URI (URI(..), URIAuth(..))
+-- import Network.URI (URI(..), URIAuth(..))
+import Text.URI (URI(..))
 
 
 import Pladen.Beets.Persist
@@ -68,11 +69,13 @@ domain = "maboite.org"
 
 baseUrl :: URI
 baseUrl = URI
-    { uriScheme = "https:"
-    , uriAuthority = Just $ URIAuth "" domain ""
+    { uriScheme = Just "https"
+    , uriUserInfo = Nothing
+    , uriRegName = Just domain
+    , uriPort = Nothing
     , uriPath = "/"
-    , uriQuery = ""
-    , uriFragment = ""
+    , uriQuery = Nothing
+    , uriFragment = Nothing
     }
 
 
@@ -150,8 +153,8 @@ entry :: Album -> Entry
 entry a = Entry
     { entryTitle = albumName a
       -- FIXME should not be fragment
-    , entryURL = baseUrl { uriFragment = "#/new/" ++ albumName a }
-    , entryId = show $ baseUrl { uriFragment = "#/new/" ++ albumName a }
+    , entryURL = baseUrl { uriFragment = Just $ "/new/" ++ albumName a }
+    , entryId = show $ baseUrl { uriFragment = Just $ "/new/" ++ albumName a }
     , entryUpdated = posixSecondsToUTCTime . realToFrac . albumAdded $ a
     , entrySummary = "\"" ++ albumName a 
                   ++ "\" von " ++ albumArtist a 

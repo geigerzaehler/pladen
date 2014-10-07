@@ -138,6 +138,11 @@ CABAL_SERVER_BIN = dist/build/server/server
 # Source files the server is built from
 SERVER_SOURCES = $(shell find Pladen -name '*.hs')
 
+# Install all dependencies in the cabal package configuration to the
+# local sandbox.
+CABAL_DEPS = .cabal-sandbox/install-timestamp
+CABAL_SANDBOX = cabal.sandbox.config
+
 
 .PHONY: server
 server: $(SERVER_BIN)
@@ -146,15 +151,9 @@ $(SERVER_BIN): $(CABAL_SERVER_BIN)
 	cp -f $< $@
 
 $(CABAL_SERVER_BIN): $(CABAL_DEPS) $(SERVER_SOURCES)
-	@echo $(SERVER_SOURCES)
 	cabal configure
 	cabal build
 	touch $@
-
-# Install all dependencies in the cabal package configuration to the
-# local sandbox.
-CABAL_DEPS = .cabal-sandbox/install-timestamp
-CABAL_SANDBOX = cabal.sandbox.config
 
 .PHONY: server-deps
 server-deps: $(CABAL_DEPS)

@@ -22,8 +22,8 @@ all: web server
 
 .PHONY: deploy
 deploy: web
-	# git push
-	# ssh webmaster@maboite.org bash < scripts/deploy.sh
+	git push
+	ssh webmaster@maboite.org bash < scripts/deploy.sh
 	rsync --archive assets webmaster@maboite.org:www/pladen
 
 

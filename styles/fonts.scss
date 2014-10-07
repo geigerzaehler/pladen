@@ -1,0 +1,52 @@
+@function font-url($name) {
+  @return url("/assets/fonts/#{$name}")
+}
+
+
+$font-extensions: ttf;
+@mixin font-face($name, $basename,
+                 $weight: normal, $style: normal,
+                 $extensions: $font-extensions) {
+  $files: ();
+  @if index($extensions, 'eot') {
+    $files: append($files, font-url("#{$basename}.eot?#iefix"), comma);
+  }
+  @if index($extensions, 'woff') {
+    $files: append($files, font-url("#{$basename}.woff"), comma);
+  }
+  @if index($extensions, 'ttf') {
+    $files: append($files, font-url("#{$basename}.ttf"), comma);
+  } 
+  @if index($extensions, 'svg') {
+    $files: append($files, font-url("#{$basename}.svg##{$basename}"), comma);
+  }
+
+  @font-face {
+    font-family: $name;
+    src:         $files;
+    font-weight: $weight;
+    font-style:  $style;
+  }
+}
+
+
+@each $name, $weight in (Light: 300,
+                         Regular: 400,
+                         Semibold: 500,
+                         Bold: 700,
+                         ExtraBold: 900) {
+  @include font-face("Open Sans", "OpenSans-#{$name}",
+                     $weight: $weight);
+  @include font-face("Open Sans", "OpenSans-#{$name}-italic",
+                     $weight: $weight, $style: italic);
+}
+@each $name, $weight in (Regular: 400) {
+  @include font-face("Lato", "Lato-#{$name}",
+                     $weight: $weight);
+  @include font-face("Lato", "Lato-#{$name}Italic",
+                     $weight: $weight, $style: italic);
+  @include font-face("Source Sans Pro", "SourceSansPro-#{$name}",
+                     $weight: $weight);
+  @include font-face("Source Sans Pro", "SourceSansPro-#{$name}Italic",
+                     $weight: $weight, $style: italic);
+}

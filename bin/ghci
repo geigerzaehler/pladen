@@ -1,0 +1,10 @@
+#!/bin/bash
+
+PACKAGEDB=.cabal-sandbox/i386-linux-ghc-7.6.3-packages.conf.d
+
+ghci \
+  -package-db=${PACKAGEDB} \
+  -no-user-package-db \
+  -Wall \
+  Pladen/Main.hs \
+  "$@"

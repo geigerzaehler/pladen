@@ -1,0 +1,14 @@
+# Vendor libraries
+.cabal-sandbox
+cabal.sandbox.config
+bower_components
+node_modules
+
+# Build artifacts
+.sass-cache
+dist
+assets
+bin/server
+client/**/*.js
+icomoon
+album_requests.log

@@ -1,0 +1,21 @@
+@keyframes popout {
+  from { transform: scale(0) }
+  to   { transform: scale(1) }
+}
+%run-popout {
+  animation: popout 0.18s backwards;
+}
+.run-popout {
+  @extend %run-popout;
+}
+
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+%run-spin {
+  animation: spin 2.4s linear infinite;
+}
+.run-spin {
+  @extend %run-spin;
+}

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<head>
+  <title>Thomas’ Musik</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="http://localhost:3008/reloader.js"></script>
+  <script src="/assets/boot.js"></script>
+  <script>
+    require.config({baseUrl: '/assets'});
+    require(['app'], function(App) {
+      App.start()
+    });
+  </script>
+
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta charset="utf-8">
+</head>
+
+<body>
+  <div class="app-loader modal active">
+    <div class="app-loader-message">
+      Lade Daten
+      <i class="icon icon-cog"></i>
+    </div>
+  </div>
+
+  <div class="container">
+    <nav>
+      <a href="#/">Alle</a>
+      <a href="#/new">Neuste</a>
+      <a href="/feed.xml"><i class="icon">feed</i></a>
+    </nav>
+  </div>
+  <div class="hidden-box">
+  </div>
+
+  <template name="drag-release">
+    <div class="drag-release-name">{{name}}</div>
+    <div class="drag-release-artist">{{artist}}</div>
+  </template>
+
+  <!-- PLAYER -->
+  <template name="player">
+    <div class="player-container">
+      <button class="player-toggle-playlist">
+        <i class="icon">menu</i>
+      </button>
+
+      <div class="player-main">
+
+        <div class="player-box">
+          <div class="player-empty">
+            Du kannst Tracks aus Alben mit dem <i class="icon">music</i>
+            Symbol hierhin ziehen um sie anzuhören.
+          </div>
+
+          <div class="player-drop-target">
+            <i class="icon">play</i> Abspielen
+          </div>
+
+          <div class="player-playing">
+            <div class="player-progress-buffer"></div>
+            <div class="player-progress-play"></div>
+            <div class="player-info">
+              <div class="player-title">{{title}}</div>
+              <div class="player-artist">{{artist}}</div>
+            </div>
+            <div class="player-duration"></div>
+          </div>
+        </div>
+
+        <div class="player-playlist-window">
+          <ol class="player-playlist">
+            <li>Live Wire
+            <li>Shot Down In Flames
+            <li>Hell Ain't A Bad Place To Be
+            <li>Sin City
+          </ol>
+        </div>
+      </div>
+
+      <button class="player-control">
+        <i class="icon"></i>
+      </button>
+    </div>
+  </template>
+
+  <!-- SEARCH -->
+  <template name="search">
+    <div class="search-input">
+      <input type="search" placeholder="Suche">
+    </div>
+    <div class="search-options">
+      <a class="search-link"><i class="icon">link</i> Suchlink</a>
+      <span class="search-downloadable">
+        <i class="icon"></i> Download und Anhören
+      </span>
+    </div>
+  </template>
+
+
+  <!-- ARTISTS -->
+  <template name="artist-list">
+    <ol class="artist-list"></ol>
+  </template>
+
+  <template name="artist">
+    <div class="artist-name oneline">{{name}}</div>
+    <ol class="artist-album-list"></ol>
+    <ol class="artist-track-list"></ol>
+  </template>
+
+  <template name="artist-album">
+    <div class="album-loading">
+      <i class="icon icon-cog"></i>
+    </div>
+    <button class="artist-album-main">
+      {{name}}
+      <small>
+        {{#year}}
+          <span class="artist-album-year">({{year}})</span>
+        {{/year}}
+        {{#downloadable}}
+          <i class="artist-album-listen icon">music</i>
+        {{/downloadable}}
+      </small>
+    </button>
+    {{#recent}}
+      <span class="artist-album-added" title="{{addedIso}}">
+        {{added}}<br>hinzugefügt
+      </span>
+    {{/recent}}
+  </template>
+
+  <template name="artist-track">
+    {{title}}
+  </template>
+
+
+  <!-- ALBUMS -->
+  <template name="album">
+    <div class="release-head">
+      <div class="album-loading">
+        <i class="icon icon-cog"></i>
+      </div>
+      <div class="album-main">
+        <div class="album-name">{{name}}</div>
+        <div class="album-additional">
+          <span class="album-artist">{{artist}}</span>
+          <span class="album-year">({{year}})</span>
+          {{#downloadable}}
+            <i class="album-listen icon">music</i>
+          {{/downloadable}}
+        </div>
+      </div>
+      {{#added}}
+        <div class="album-added" title="{{addedIso}}">{{added}}<br>hinzugefügt</div>
+      {{/added}}
+    </div>
+  </template>
+
+  <template name="album-tracks">
+    <div class="album-tracks-wrapper">
+      <ol>
+        {{#tracks}}
+          <li class="album-track" data-id="{{id}}">
+            <div class="album-track-no">{{no}}.</div>
+            <div class="album-track-title">{{title}}</div>
+            <div class="album-track-artist">{{artist}}</div>
+          </li>
+        {{/tracks}}
+      </ol>
+      <a class="album-download" href="{{downloadURL}}">Download</a>
+    </div>
+  </template>
+
+  <template name="drag-track">
+    <div class="drag-track-title">{{title}}</div>
+    <div class="drag-track-artist">{{artist}}</div>
+  </template>
+
+  <template name="track-release">
+    <div class="release-head">
+      <div class="album-loading">
+        <i class="icon icon-cog"></i>
+      </div>
+      <div class="album-main">
+        <div class="album-name">{{title}}</div>
+        <div class="album-additional">
+          <span class="album-artist">{{artist}}</span>
+          {{#year}}
+            <span class="album-year">({{year}})</span>
+          {{/year}}
+          {{#downloadable}}
+            <i class="album-listen icon">music</i>
+          {{/downloadable}}
+        </div>
+      </div>
+      {{#added}}
+        <div class="album-added" title="{{addedIso}}">{{added}}<br>hinzugefügt</div>
+      {{/added}}
+    </div>
+  </template>
+
+
+  <!-- DIALOGS -->
+  <template name="album-req-dialog">
+    Das Album „{{name}}“ steht noch nicht als Download zur Verfügung.
+    Möchtest du es anfordern?
+    <div class="dialog-control">
+      <button class="dialog-close">Abbrechen</button>
+      <button class="album-request">
+        Anfordern
+        <i class="icon icon-cog"></i>
+      </button>
+    </div>
+  </template>
+
+  <template name="msg-dialog">
+    <div class="msg-dialog-msg">{{msg}}</div>
+    <div class="dialog-control">
+      <button class="dialog-close">Ok</button>
+    </div>
+  </template>
+
+</body>

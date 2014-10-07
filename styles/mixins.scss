@@ -1,0 +1,106 @@
+@mixin button-reset {
+  display: inline;
+  margin:  0;
+  padding: 0;
+  border:  0;
+  outline: 0;
+  box-sizing: content-box;
+  line-height: inherit;
+
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  text-align: left;
+
+  background: transparent;
+  color: inherit;
+
+  cursor: pointer;
+
+  &:focus { outline: 0; }
+  &::-moz-focus-inner {
+    padding: 0;
+    border:  0;
+  }
+}
+
+
+@mixin button {
+  display: inline-block;
+  padding-left:  1em;
+  padding-right: 1em;
+
+  color: white;
+  background: $teal;
+
+  padding-top:    3px;
+  padding-bottom: 2px;
+  border-bottom: 3px solid $teal-shade;
+
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: background-color 0.3s;
+
+  outline: 0;
+  &:focus, &:active {
+    border-bottom: 2px solid $teal-shade;
+    padding-top: 4px;
+    box-shadow: -2px 0px 2px -1px rgba(black, 0.1)  inset,
+                 0px 1px 1px  0px rgba(black, 0.05) inset,
+                 1px 0px 0px  0px rgba(black, 0.05) inset;
+
+
+  }
+
+  &:hover {
+    border-bottom-color: darken($teal-shade, 4%);
+    background-color:    darken($teal, 4%);
+  }
+}
+
+
+@mixin fader {
+  transition: opacity 0.4s ease-in;
+  opacity: 1;
+  &.inactive {
+    display: none;
+    opacity: 0;
+  }
+}
+
+/**
+ * @mixin overlay
+ *
+ * Span the whole viewport with half-transparent background.
+ */
+
+@mixin overlay {
+  z-index: 1;
+  position: fixed;
+  overflow: hidden;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  transition: background-color 0.2s ease-in;
+  background-color: rgba(black, 0.75);
+  &.inactive {
+    display: none;
+    background-color: rgba(black, 0);
+  }
+}
+
+
+/**
+ * @mixin stretch
+ */
+@mixin stretch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

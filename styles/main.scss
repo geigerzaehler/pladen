@@ -1,0 +1,677 @@
+@import "reset";
+@import "fonts";
+@import "icons";
+
+
+$ease-in-cubic:  cubic-bezier(0.55, 0.055, 0.675, 0.19);
+$ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+$ease-in-sine:   cubic-bezier(0.47, 0, 0.745, 0.715);
+$ease-out-sine:  cubic-bezier(0.39, 0.575, 0.565, 1);
+
+// Colors
+$teal:            hsl(180, 59%, 51%);
+$teal-shade:      hsl(180, 59%, 41%);
+$teal-more-shade: hsl(180, 59%, 34%);
+$blue:            hsl(210, 100%, 12%);
+
+$open-sans: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+
+@function font-scale($scale) {
+  @return pow(4/3, $scale) * 1em;
+}
+
+
+@function rhythm($multiple: 1) {
+  @return $multiple * 1.3em;
+}
+
+
+@import "mixins";
+@import "animations";
+
+[draggable] {
+  user-select: none;
+  cursor: grab !important
+}
+
+html {
+  font-family: $open-sans;
+  font-size:  20px;
+  color: #fff;
+}
+
+body {
+  // Need this here because of reset.
+  line-height: 1.3;
+  background: $blue;
+  overflow-y: scroll;
+}
+
+template {
+  display: none;
+}
+
+input {
+  -webkit-appearance: none;
+
+  font-family: $open-sans;
+  font-weight: lighter;
+  font-size:   1em;
+}
+
+.container {
+  max-width: 36em;
+  padding:   0 1.7em 5em;
+  margin:    0 auto;
+}
+
+
+/**
+ * @component app-loader
+ */
+.app-loader-message {
+  cursor: default;
+  font-size: font-scale(1);
+
+  .icon {
+    @extend %run-spin;
+    display: inline-block;
+    vertical-align: middle;
+
+    margin-left: 0.2em;
+  }
+}
+
+
+/**
+ * @component modal
+ */
+.modal {
+  @include overlay;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+
+  padding:   2em 1.3em;
+
+  &:before {
+    content: "";
+    flex-basis: 20%;
+  }
+}
+
+.modal dialog {
+  max-width: 30em;
+  margin:    0 auto;
+
+  flex-shrink: 0;
+  display: block;
+  min-width: 18em;
+  padding: 1.4em 1em;
+  border-radius: 5px;
+
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  line-height: 1.2;
+  color: hsl(0, 0%, 20%);
+  background: #fff;
+}
+
+
+.dialog-control {
+  display:      flex;
+  padding-top:  1em;
+
+  button {
+    @include button-reset;
+    @include button;
+
+    font-weight: normal;
+    display: block;
+    line-height: 1.4;
+    border-radius: 5px;
+    margin-right: 0.8em;
+  }
+}
+
+.album-request {
+  i {
+    display: none;
+
+    vertical-align: middle;
+    margin-left: 0.3em;
+  }
+
+  &.active i {
+    @extend %run-spin;
+    display: inline-block;
+  }
+}
+
+
+/**
+ * @component tooltip
+ */
+.tooltip {
+  font-size:    0.75rem;
+  font-weight:  normal;
+
+  position:       absolute;
+  padding:        0.2em 0.6em;
+  border-radius:  5px;
+
+  background: hsl(210, 100%, 3%);
+  box-shadow: 0 0 3px 1px hsla(210, 100%, 3%, 0.8);
+}
+
+
+/**
+ * @component oneline
+ */
+.oneline {
+  display: inline-block;
+  align-self: flex-start;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+
+/**
+ * @component content
+ *
+ * Content tabs.
+ */
+
+.content > li {
+  @include fader;
+  transition-duration: 0.2s;
+}
+
+
+/**
+ * @component search
+ *
+ * @state hidden
+ */
+.search {
+  padding-bottom: 0.3rem;
+}
+
+.search-input {
+  margin:   0 -0.8em 0.5rem;
+
+  input {
+    display:  block;
+    width:    100%;
+    height:   2.3em;
+    padding:  0 0.8em;
+
+    border-radius: 9px;
+    border: 0;
+    color: hsl(0, 0%, 10%);
+    outline: 0;
+  }
+}
+
+.search-options {
+  font-size: font-scale(-1);
+  margin-left: 0.2em;
+
+  .icon {
+    font-size: 0.8em;
+  }
+}
+
+.search-link {
+  display: inline-block;
+  margin-right: 1em;
+
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:not([href]) {
+    text-decoration: none;
+    color: hsl(0, 0%, 58%);
+  }
+}
+
+.search-downloadable {
+  cursor: pointer;
+
+  i:before {
+    content: "unchecked";
+  }
+
+  &.checked i:before {
+    content: "checked";
+  }
+}
+
+/**
+ * @component nav
+ */
+
+nav {
+  display: inline-flex;
+  line-height: 2;
+
+  margin: 2*font-scale(-1) 0;
+  margin-left: -2px;
+
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+nav a {
+  @include button;
+}
+
+
+/**
+ * @component artist-list
+ */
+
+.artist {
+  display: flex;
+  flex-direction: column;
+
+  &.filtered {
+    display: none;
+  }
+}
+
+.artist-name {
+  // Rhythm: height+padding: 2*line-height
+  padding-top: 1.3em * (2em/font-scale(1) - 1);
+  font-weight: bold;
+  font-size: font-scale(1);
+}
+
+.artist-album {
+  position: relative;
+}
+
+.artist-album-main {
+  @include button-reset;
+  display: block;
+  width: 100%;
+}
+
+.artist-album-main small {
+  margin-left: 0.5em;
+  font-size: font-scale(-1);
+}
+
+.artist-album-listen {
+  font-size: font-scale(-1);
+
+  position: relative;
+  top: 0.0888888888em;
+  padding-left: 0.5em;
+}
+
+.artist-album-added {
+  font-size: font-scale(-2);
+  text-align: right;
+  height: 0;
+}
+
+.artist-album .album-loading {
+  top: -0.05em;
+}
+
+.artist-album .album-tracks-wrapper {
+  margin-top: 0.3em;
+  margin-bottom: 1em;
+  margin-left: 0.08em;
+}
+
+
+ol.releases > li {
+  margin-bottom: 0.9em;
+}
+
+
+/**
+ * @component release
+ */
+
+.release-head {
+  font-size: font-scale(1);
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  padding-bottom: 0.3em;
+
+  cursor: pointer;
+}
+
+.album-loading {
+  position: absolute;
+  top:     -0.15em;
+  left:    -0.86em;
+
+  opacity: 0;
+  display: none;
+  transition: opacity 0.4s;
+
+  &.active {
+    opacity: 1;
+    display: block;
+    transition: opacity 0.4s 0.5s;
+  }
+
+  i {
+    display: inline-block;
+    font-size: 0.6em;
+    animation: spin 2.4s linear infinite;
+  }
+}
+
+.album-main {
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.album-name {
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.2;
+
+  display: inline-block;
+  max-width: 100%;
+  align-self: flex-start;
+  padding-right: 0.5em;
+
+  background: linear-gradient(to left, rgba($blue, 0.1), $blue 0.5em);
+  &:hover {
+    max-width: none;
+  }
+}
+
+.album-added {
+  padding-left: 0.8em;
+  flex-shrink: 0;
+  height: 0;
+  z-index: -1;
+
+  text-align: right;
+  font-size:  font-scale(-2);
+}
+
+@media (max-width: 38em) {
+  .album-added {
+    display: none;
+  }
+}
+
+.album-additional {
+  font-style: italic;
+  font-size:  font-scale(-1);
+}
+
+.album-listen {
+  font-size: font-scale(-2);
+  margin-left: 0.2em;
+}
+
+.album-tracks {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.5s;
+
+}
+
+.album-tracks-wrapper {
+  font-size: font-scale(-1);
+
+  padding-left: 1em;
+  border-left: 3px solid $teal;
+}
+
+.album-download {
+  @include button;
+  margin-top: 0.6em;
+  line-height: 1.5;
+  border-radius: 3px;
+  vertical-align: middle;
+  padding-left: 1.8 * 0.75em;
+  padding-right: 1.8 * 0.75em;
+}
+
+.album-tracks ol {
+  padding: 0.1em 0 0;
+}
+
+.album-track {
+  display:      flex;
+  align-items:  baseline;
+
+  line-height:    1.05;
+  margin-bottom:  0.15em;
+
+  &[draggable] {
+    cursor: pointer;
+  }
+}
+
+.album-track-no {
+  font-size:     font-scale(-1);
+  flex-shrink:   0;
+  min-width:     1.3em;
+  margin-right:  0.5em;
+}
+
+.album-track-artist {
+  padding-left: 0.3em;
+  font-weight: lighter;
+  color: hsl(0, 0%, 80%);
+}
+
+.drag-release {
+  font-size: font-scale(-1);
+
+  display: inline-block;
+  padding: 0.3em 0.8em;
+
+  color: white;
+  background: hsl(0, 0%, 8%);
+}
+
+.drag-release-name {
+  font-weight: bold;
+}
+
+/**
+ * @component player
+ *
+ * @state empty
+ * @state playing
+ * @state over
+ */
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background: hsl(0, 0%, 4%);
+}
+
+
+.player-container {
+  @extend .container;
+
+  padding-top:     rhythm(0.5);
+  padding-bottom:  rhythm(0.5);
+
+  display: flex;
+  align-items: stretch;
+}
+
+.player-main {
+  flex-grow:  1;
+  display: flex;
+  flex-direction: column;
+}
+
+.player-box {
+  font-size: 14px;
+
+  height:     3em;
+  padding:    0.6em 1em;
+
+  display:      flex;
+  align-items:  center;
+
+  position: relative;
+  background: hsl(0, 0%, 10%);
+}
+
+.player-empty {
+  padding:    0 1em;
+  font-size:  0.8em;
+  color:      hsl(0,0%,30%);
+
+  display: none;
+  .player.empty & {
+    display: block;
+  }
+}
+
+.player-playing {
+  z-index: 0;
+  width: 100%;
+
+  display: flex;
+  .player.empty & {
+    display: none;
+  }
+}
+
+.player-info {
+  flex-grow: 1;
+}
+.player-title {
+  font-weight: bold;
+}
+
+.player-position-set {
+  @include stretch;
+  z-index: 1;
+}
+
+%player-progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+}
+.player-progress-buffer {
+  @extend %player-progress;
+  background: hsl(0, 0%, 14%);
+}
+.player-progress-play {
+  @extend %player-progress;
+  background: hsl(0, 0%, 20%);
+}
+
+
+%player-control-icon {
+  @include button-reset;
+
+  width:  3em;
+  height: 3em;
+  text-align: center;
+  flex-shring: 0;
+
+  transition-property: color text-shadow;
+  transition-duration: 0.15s;
+
+  color: hsl(0, 0%, 20%);
+  &:hover {
+    color: white;
+    text-shadow: 0 0 5px rgba(white, 0.3);
+  }
+
+  i {
+    font-size: 2.2em;
+  }
+}
+
+.player-toggle-playlist {
+  @extend %player-control-icon;
+  // Temporarily disabled
+  display: none;
+}
+
+.player-control {
+  @extend %player-control-icon;
+
+  & i:before {
+    content: "play"
+  }
+
+  .player.playing & i:before {
+    content: "pause"
+  }
+}
+
+
+.player-drop-target {
+  @include stretch;
+
+  font-size:   font-scale(1);
+  font-weight: bold;
+
+  background: hsl(0, 0%, 12%);
+  border-radius: 5px;
+  border: 2px dashed $teal;
+
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  z-index: -1;
+
+  html.drag-track & {
+    z-index: 1;
+  }
+
+  .player.over & {
+    border-style: solid;
+  }
+
+  &:before {
+    content: "";
+    @include stretch;
+  }
+}
+
+.player-playlist-window {
+  overflow: hidden;
+  transition: height 0.3s;
+  display: none;
+}
+
+.player-playlist {
+  margin: rhythm(0.5) 0;
+
+  font-size: font-scale(-1);
+  line-height: 1.6em;
+}
+
+.player-playlist li {
+  padding: 0 1em;
+}

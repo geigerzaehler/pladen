@@ -1,0 +1,107 @@
+#!/usr/bin/env coffee
+
+path = require('path')
+requirejs = require('requirejs')
+
+
+targets = ->
+  vendorPackages = [
+    'mustache'
+  , 'underscore'
+  , 'backbone'
+  , 'when'
+  , 'moment'
+  , 'q'
+  , 'almond'
+  , 'move'
+  , 'superagent'
+  , 'hammer'
+  ,
+    name: 'jquery'
+    location: './dist'
+  ,
+    name: 'backbone.marionette'
+    location: './lib/core/amd'
+  ,
+    name: 'backbone.wreqr'
+    location: './lib'
+  ,
+    name: 'backbone.babysitter'
+    location: './lib'
+  ,
+    name: 'hasher'
+    location: './dist/js'
+  ,
+    name: 'crossroads'
+    location: './dist'
+  ,
+    name: 'signals'
+    location: './dist'
+  ,
+    name: 'fastclick'
+    location: './lib'
+  ,
+    name: 'requirejs'
+    main: 'require'
+  ].map(createPackage)
+
+
+  bowerBase = './bower_components'
+  clientBase = './client'
+
+  vendorInclude = vendorPackages
+    .map(packageName)
+    .filter (name) -> name != 'almond'
+    .concat('moment/lang/de')
+
+
+  vendor:
+    baseUrl: bowerBase
+    packages: vendorPackages
+    include: vendorInclude
+    optimize: 'none'
+
+  client:
+    baseUrl: clientBase
+    packages: vendorPackages.map(packagePrefix('../bower_components'))
+    name: 'app'
+    include: ['almond']
+
+
+program = (targetName, out)->
+  unless targetName and out
+    console.error "Usage: amd-build <target> <outfile>"
+    process.exit(2)
+
+  unless target = targets()[targetName]
+    console.error "Target «#{targetName}» not found."
+    console.error "Available targets: #{Object.keys(targets).join(', ')}"
+    process.exit(2)
+
+  target.out = out
+  requirejs.optimize target, (report)->
+    console.log report
+  , (e)->
+    console.error e.message
+
+
+createPackage = (name)->
+  if typeof name != 'string'
+    {name, location, main} = name
+  if not location?
+    location = name
+  else if location[0..1] == './'
+    location = path.join(name, location)
+  main ||= name
+  return {name, location, main}
+
+
+packagePrefix = (prefix)->
+  ({name, location, main})->
+    location = path.join(prefix, location)
+    {name, location, main}
+
+packageName = ({name})-> name
+
+
+program(process.argv.splice(2)...)

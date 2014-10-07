@@ -1,0 +1,32 @@
+{
+  "name": "pladen",
+  "version": "0.0.0",
+  "authors": [
+    "Thomas Scholtes <thomas-scholtes@gmx.de>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "2.1.1",
+    "backbone.marionette": "marionette#~1.8.3",
+    "mustache": "~0.8.1",
+    "crossroads": "~0.12.0",
+    "hasher": "~1.2.0",
+    "q": "~1.0.0",
+    "requirejs": "~2.1.11",
+    "fastclick": "~1.0.1",
+    "move": "git@github.com:visionmedia/move.js.git#0.3.2",
+    "almond": "~0.2.9",
+    "moment": "momentjs#~2.6.0",
+    "signals": "js-signals#",
+    "when": "^3.1.0",
+    "superagent": "~0.18.0",
+    "hammer": "hammerjs#^2.0.4"
+  }
+}

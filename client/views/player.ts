@@ -2,6 +2,7 @@
 import moment = require('moment');
 import css = require('css_promise');
 import hammer = require('hammer');
+import $ = require('jquery');
 
 import TemplateView = require('./base/template');
 import Track = require('models/track');

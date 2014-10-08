@@ -243,6 +243,7 @@ input {
 }
 
 .search-downloadable {
+  user-select: none;
   cursor: pointer;
 
   i:before {
@@ -613,8 +614,6 @@ ol.releases > li {
 
 .player-toggle-playlist {
   @extend %player-control-icon;
-  // Temporarily disabled
-  display: none;
 }
 
 .player-control {
@@ -662,7 +661,6 @@ ol.releases > li {
 .player-playlist-window {
   overflow: hidden;
   transition: height 0.3s;
-  display: none;
 }
 
 .player-playlist {

@@ -17,6 +17,9 @@ targets = ->
   , 'superagent'
   , 'hammer'
   ,
+    name: 'bacon'
+    main: './dist/Bacon.js'
+  ,
     name: 'jquery'
     location: './dist'
   ,

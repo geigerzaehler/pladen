@@ -19,6 +19,8 @@ define [
   'global'
   'oneline'
   'bus'
+  'bacon'
+  'views/search2'
   'moment/lang/de'
 ], (
   router
@@ -41,6 +43,8 @@ define [
   {instance: global}
   oneline
   Bus
+  Bacon
+  {searchView}
 )->
 
 
@@ -82,8 +86,20 @@ define [
         global.openMessageDialog = @modal.openMessage.bind(@modal)
         MyView::app = global
 
+        
+        theSearchView = searchView()
+
+        Bacon.combineTemplate(
+          pattern:  theSearchView.search,
+          download: theSearchView.downloadable
+        ).assign global.search, 'dispatch'
+
+        this.bus.on 'route:enter:search', (val)->
+          theSearchView.$el.find('input').val(val)
+          theSearchView.searchFragment.push(val)
+
         @artistSearchView = new BagView(
-          new SearchView(@bus),
+          theSearchView,
           new ArtistsView(@artists, @vent)
         )
         # @albumsView = new AlbumCollectionView(@recentAlbums)

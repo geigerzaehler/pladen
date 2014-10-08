@@ -27,6 +27,7 @@
     "signals": "js-signals#",
     "when": "^3.1.0",
     "superagent": "~0.18.0",
-    "hammer": "hammerjs#^2.0.4"
+    "hammer": "hammerjs#^2.0.4",
+    "bacon": "~0.7.23"
   }
 }

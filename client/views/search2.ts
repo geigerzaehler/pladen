@@ -1,9 +1,22 @@
 /// <reference path="../../typings/bacon.d.ts" />
+/// <reference path="../../typings/templates.d.ts" />
+
 import Bacon = require('bacon');
 import View = require('views/base/view2');
+import tpls = require('templates');
 
+/**
+ * UI for search input and download toggle
+ */
 export class SearchView extends View.View {
+    /**
+     * Value of the search input
+     */
     search: Bacon.Property<string>;
+
+    /**
+     * Value of the 'download' toggle
+     */
     downloadable: Bacon.Property<boolean>;
     searchFragment: Bacon.Bus<string>;
 
@@ -14,7 +27,7 @@ export class SearchView extends View.View {
 }
 
 export function searchView() {
-    var view = <SearchView>View.templateView('<div class="search">', 'search');
+    var view = new SearchView($(tpls.search()));
 
     var searchInput = view.eventStream('input', 'input');
     var searchChange = view.eventStream('change', 'input');
@@ -23,8 +36,9 @@ export function searchView() {
         searchInput.merge(searchChange)
         .map((_) => view.$el.find('input').val())
         .toProperty('');
+
     view.downloadable =
-        View.eventStream(view, 'click', '.search-downloadable')
+        view.eventStream('click', '.search-downloadable')
         .scan(false, (state, _) => !state);
     view.downloadable.assign(view.$el.find('.search-downloadable'),
                              'toggleClass', 'checked');

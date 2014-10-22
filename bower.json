@@ -24,10 +24,15 @@
     "move": "git@github.com:visionmedia/move.js.git#0.3.2",
     "almond": "~0.2.9",
     "moment": "momentjs#~2.6.0",
+    "hgn": "requirejs-hogan-plugin#",
+    "text": "requirejs-text#",
     "signals": "js-signals#",
     "when": "^3.1.0",
     "superagent": "~0.18.0",
     "hammer": "hammerjs#^2.0.4",
     "bacon": "~0.7.23"
+  },
+  "devDependencies": {
+    "hogan": "~3.0.2"
   }
 }

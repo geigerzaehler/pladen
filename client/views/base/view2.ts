@@ -1,10 +1,9 @@
 /// <reference path="../../../typings/jquery/jquery.d.ts" />
 /// <reference path="../../../typings/bacon.d.ts" />
-/// <reference path="../../../typings/mustache/mustache.d.ts" />
+
 import Bacon = require('bacon');
 import $ = require('jquery');
 import elementEventStream = require('utils/element_event_stream');
-import Mustache = require('mustache');
 
 
 export class View {
@@ -47,37 +46,4 @@ export class View {
         }
         return stream;
     }
-}
-
-export function eventStream(view: View, event: string, selector = "") {
-    var selected = view.eventStreams[selector];
-    if (selected == undefined) {
-        selected = {};
-        view.eventStreams[selector] = selected;
-    }
-    var stream = selected[event]
-    if (stream == undefined) {
-        stream = elementEventStream(view.el, event, selector);
-        selected[event] = stream;
-    }
-    return stream;
-}
-
-export function mustacheRender
-(template: string, data: Bacon.Observable<{}>): Bacon.Observable<string> {
-    return data.map((d) => {
-        return Mustache.render(template, d);
-    })
-}
-
-export function setContent(view: View, content: Bacon.Observable<string>) {
-    return content.onValue((c) => {
-        view.el.innerHTML = c;
-    })
-}
-
-export function templateView(elementTemplate: string, templateName: string): View {
-    var template = $("template[name='" + templateName + "']").html();
-    var $el = $(elementTemplate).html(template);
-    return new View($el);
 }

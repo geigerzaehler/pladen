@@ -2,7 +2,18 @@
   "private": true,
   "devDependencies": {
     "autoprefixer": "^3.1.0",
+    "chai": "^1.9.2",
+    "chai-builder": "^0.2.2",
     "frish": "^0.2.1",
+    "karma": "^0.12.24",
+    "karma-chai": "^0.1.0",
+    "karma-coffee-preprocessor": "^0.2.1",
+    "karma-mocha": "^0.1.9",
+    "karma-notify-reporter": "^0.1.1",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-requirejs": "^0.2.2",
+    "mocha": "^1.21.4",
+    "mocha-when-then": "^0.4.1",
     "requirejs": "^2.1.15",
     "schaffen": "^0.4.2"
   }

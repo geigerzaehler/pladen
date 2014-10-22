@@ -22,6 +22,7 @@ define [
   'bacon'
   'views/search2'
   'moment/lang/de'
+  'es5-shim'
 ], (
   router
   $

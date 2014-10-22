@@ -2,6 +2,19 @@
 #
 # A development tool that rebuilds make targets when source files
 # change. It also reloads the browser
+#
+# * Run the server and restart it when any of Haskell sources change
+#
+# * Run the reload server that triggers page refreshes when any of the
+#   assets or compiled client files change
+#
+# * Run the karma server and restart it when the configuration file
+#   changes.
+#
+# * Recompile the stylesheets when they change
+#
+# * Recompile the development webapp if client Coffee and TypeScript
+#   sources change, or the bower file changes.
 
 createWatcher = require('../../everybreath')
 frish = require('frish')
@@ -39,6 +52,12 @@ registerWorker(server)
 {reload} = frish(3008)
 # server.on('restart', reload)
 watch('assets', 'client/**/*.js', reload)
+
+
+# Karma
+karma = worker 'karma start'
+watch('karma.conf.js', 'package.json', karma.restart)
+registerWorker(karma)
 
 
 # Styles

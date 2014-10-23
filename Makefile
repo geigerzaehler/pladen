@@ -6,6 +6,7 @@
 # Paths to executable tools
 CSS_PREFIXER = node_modules/.bin/autoprefixer
 AMD_BUILD = bin/amd-build
+export PATH := node_modules/.bin/:$(PATH)
 
 # Directory containing the assets (JS, CSS) that are served by the
 # server
@@ -26,6 +27,10 @@ deploy: web
 	ssh webmaster@maboite.org bash < scripts/deploy.sh
 	rsync --archive assets webmaster@maboite.org:www/pladen
 
+
+.PHONY: test
+test: test/* webapp-dev
+	karma start --port 12001 --single-run
 
 # Install tools and utilities required for building the application
 build-deps: server-deps client-deps

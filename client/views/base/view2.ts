@@ -6,6 +6,10 @@ import $ = require('jquery');
 import elementEventStream = require('utils/element_event_stream');
 
 
+/**
+ * Encapsulate a DOM node and provide a basic interface to events and
+ * sub-nodes.
+ */
 export class View {
 
     constructor($el) {
@@ -17,13 +21,15 @@ export class View {
 
     el: HTMLElement;
     $el: JQuery;
-    eventStreams: {[selector:string]: {[event: string]: Bacon.Stream<Event>}};
-    uiCache: {}
 
     $(selector: string) {
         return this.$el.find(selector);
     }
 
+
+    /**
+     * Cached version of `this.$()`.
+     */
     ui(selector: string) {
         var $el = this.uiCache[selector];
         if (!$el)
@@ -32,6 +38,13 @@ export class View {
         return $el;
     }
 
+
+    /**
+     * Obtain an event stream for a DOM event on this node.
+     *
+     * Uses delegated events on the root node `this.el` and caches
+     * event streams.
+     */
     eventStream(event: string, selector = "") {
         var view = this;
         var selected = view.eventStreams[selector];
@@ -46,4 +59,7 @@ export class View {
         }
         return stream;
     }
+
+    private eventStreams: {[selector:string]: {[event: string]: Bacon.Stream<Event>}};
+    private uiCache: {};
 }

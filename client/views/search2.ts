@@ -1,5 +1,4 @@
 /// <reference path="../../typings/bacon.d.ts" />
-/// <reference path="../../typings/templates.d.ts" />
 
 import Bacon = require('bacon');
 import View = require('views/base/view2');

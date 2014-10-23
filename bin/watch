@@ -18,7 +18,12 @@
 
 createWatcher = require('../../everybreath')
 frish = require('frish')
-{runner, worker}  = require('schaffen')
+runner = require('schaffen/runner')
+worker = require('schaffen/worker').start
+
+# The 'exit' hooks kill all workers
+process.on 'SIGTERM', -> process.exit()
+process.on 'SIGINT',  -> process.exit()
 
 
 ignore = [
@@ -32,10 +37,6 @@ ignore = [
 ]
 {watch} = createWatcher('.', ignore, throttle: 400)
 
-registerWorker = (worker)->
-  process.on 'exit', -> worker.stop()
-  worker.start()
-
 
 # Tags
 tags = runner('make tags', silent: false)
@@ -43,9 +44,8 @@ watch 'Pladen/**/*.hs', tags
 
 
 # Development server
-server = worker 'cabal run'
+server = worker 'cabal', 'run'
 watch('Pladen/**/*.hs', server.restart)
-registerWorker(server)
 
 
 # Reload browser
@@ -55,9 +55,8 @@ watch('assets', 'client/**/*.js', reload)
 
 
 # Karma
-karma = worker 'karma start'
+karma = worker 'karma', 'start'
 watch('karma.conf.js', 'package.json', karma.restart)
-registerWorker(karma)
 
 
 # Styles

@@ -13,6 +13,7 @@ require.config
   paths:
     chai: '../node_modules/chai/chai'
     'chai-builder': '../node_modules/chai-builder/index'
+    'chai-jquery': '../node_modules/chai-jquery/chai-jquery'
     'mocha-when-then': '../node_modules/mocha-when-then/dist/browser-bundle'
     support: '../test/client/support'
 

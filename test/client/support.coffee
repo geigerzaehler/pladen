@@ -1,5 +1,6 @@
-define ['chai', 'when', 'jquery', 'chai-builder']
-, (chai, Promise, $, chaiBuilder)->
+define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery']
+, (chai, Promise, $, chaiBuilder, chaiJquery)->
+  chai.use(chaiJquery)
   chai.use(chaiBuilder)
   should = chai.should
   expect = chai.expect

@@ -24,6 +24,7 @@ module.exports = function(config) {
       // Mocha Given When Then UI
       {pattern: 'node_modules/mocha-when-then/dist/browser-bundle.js', included: false},
       {pattern: 'node_modules/chai-builder/index.js', included: false},
+      {pattern: 'node_modules/chai-jquery/chai-jquery.js', included: false},
 
       // Start the test suite with requirejs
       'test/client/support/init.coffee',
@@ -71,7 +72,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_WARN,
 
 
     // enable / disable watching file and executing tests whenever any file changes

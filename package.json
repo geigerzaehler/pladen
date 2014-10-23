@@ -3,7 +3,7 @@
   "devDependencies": {
     "autoprefixer": "^3.1.0",
     "chai": "^1.9.2",
-    "chai-builder": "^0.2.2",
+    "chai-builder": "^0.2.3",
     "chai-jquery": "^2.0.0",
     "frish": "^0.2.1",
     "karma": "^0.12.24",

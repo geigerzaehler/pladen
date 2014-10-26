@@ -5,6 +5,7 @@
     "chai": "^1.9.2",
     "chai-builder": "^0.2.3",
     "chai-jquery": "^2.0.0",
+    "event-target": "^0.1.0",
     "frish": "^0.2.1",
     "karma": "^0.12.24",
     "karma-chai": "^0.1.0",
@@ -16,6 +17,8 @@
     "mocha": "^1.21.4",
     "mocha-when-then": "^0.4.1",
     "requirejs": "^2.1.15",
-    "schaffen": "^0.5.2"
+    "schaffen": "^0.5.2",
+    "sinon": "^1.10.3",
+    "underscore": "^1.7.0"
   }
 }

@@ -2,6 +2,28 @@
 // Generated on Wed Sep 24 2014 19:38:16 GMT+0200 (CEST)
 
 var path = require('path');
+var _ = require('underscore');
+var values = _.values;
+var extend = _.extend;
+
+var base = process.cwd();
+
+var nodeModules = nodeModulePaths({
+  // Test libraries
+  'mocha-when-then': './dist/browser-bundle',
+  'chai': './chai',
+  'chai-builder': true,
+  'chai-jquery': true,
+  'sinon': './pkg/sinon',
+
+  // Support and Mock
+  'event-target': './build/event-target.amd'
+});
+
+var amdModules = extend({
+  support: 'test/client/support'
+}, nodeModules);
+
 
 module.exports = function(config) {
   config.set({
@@ -20,17 +42,7 @@ module.exports = function(config) {
       // Bower modules as AMD
       'assets/boot.dev.js',
 
-
-      // Mocha Given When Then UI
-      {pattern: 'node_modules/mocha-when-then/dist/browser-bundle.js', included: false},
-      {pattern: 'node_modules/chai-builder/index.js', included: false},
-      {pattern: 'node_modules/chai-jquery/chai-jquery.js', included: false},
-
-      // Start the test suite with requirejs
       'test/client/support/init.coffee',
-
-      // Chai Expectations
-      {pattern: 'node_modules/chai/chai.js', included: false},
 
       // Client source files
       {pattern: 'client/**/*.js', included: false},
@@ -38,7 +50,11 @@ module.exports = function(config) {
 
       // Tests
       {pattern: 'test/client/**/*.coffee', included: false}
-    ],
+    ].concat(values(nodeModules).map(amdPattern)),
+
+    client: {
+      requirePaths: mapValues(amdModules, amdPath)
+    },
 
 
     // list of files to exclude
@@ -89,3 +105,36 @@ module.exports = function(config) {
     singleRun: false
   });
 };
+
+
+function mapValues(object, iteratee) {
+  var mapped = {};
+  _.each(object, function(value, key) {
+    mapped[key] = iteratee(value);
+  });
+  return mapped;
+}
+
+
+function amdPattern(file) {
+  return {pattern: file, included: false};
+}
+
+
+function amdPath(file) {
+  return path.relative(path.join(base, 'client'), file).replace(/\.js$/, '');
+}
+
+
+function nodeModulePaths(nodeModules) {
+  var paths = {};
+  for (var name in nodeModules) {
+    var main = nodeModules[name];
+    if (main === true)
+      main = require.resolve(name);
+    else
+      main = require.resolve(path.join(name, main));
+    paths[name] = main;
+  }
+  return paths;
+}

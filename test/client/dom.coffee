@@ -1,5 +1,9 @@
-define ['dom', 'support']
-, ({dragDropStream}, {should, nextEvent, $, Promise, eventStreamPromise})->
+define ['dom', 'support', 'support/events']
+, (
+  {dragDropStream},
+  {should, nextEvent, $, eventStreamPromise, promiseCall}
+  {DragEvent}
+)->
 
 
   describe 'drag over', ->
@@ -28,23 +32,17 @@ define ['dom', 'support']
     And 'the dropStream', -> dragDropStream(@element, 'text').drop
     And.value 'the drop', -> eventStreamPromise(@dropStream)
 
+    When 'overEvent', -> DragEvent 'dragover', text: 'hey'
+    When.value 'preventDefault', -> promiseCall(@overEvent, 'preventDefault')
+    When 'dispatch', -> @overEvent.dispatch(@element)
+    Then 'preventDefault', should.be.true
+
+    When -> dispatchDragEvent @element, 'dragover', text: 'hey'
     When -> dispatchDragEvent @element, 'drop', text: 'hey'
     Then 'drop', should.equal('hey')
 
 
-  class DataTransfer
-    constructor: (@data = {})->
-      @types = Object.getOwnPropertyNames(@data)
-      @types.contains = (x)-> this.indexOf(x) >= 0
-
-    getData: (key)-> @data[key]
-
-  Event = (type)->
-    e = document.createEvent 'HTMLEvents'
-    e.initEvent(type)
-    e
-
   dispatchDragEvent = (el, name, data)->
-    ev = Event name
-    ev.dataTransfer = new DataTransfer data
-    el.dispatchEvent(ev)
+    ev = DragEvent name, data
+    ev.dispatch(el)
+    ev

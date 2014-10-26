@@ -27,7 +27,8 @@ import Bacon = require('bacon')
  */
 export function dragDropStream(el: HTMLElement, type: string): DragDropStream {
     function eventFilter(ev: DragEvent) {
-        return ev.dataTransfer.types.contains(type);
+        var types:any = ev.dataTransfer.types;
+        return types.indexOf(type) >= 0
     }
 
     function filteredEventStream(event: string) {
@@ -42,11 +43,20 @@ export function dragDropStream(el: HTMLElement, type: string): DragDropStream {
                .map((ev: DragEvent) => ev.dataTransfer.getData(type));
 
     var over = Bacon.update(
-        false,
-        [dragenter], () => true,
-        [dragleave], () => false,
-        [drop], () => false
+        false
+      , [dragenter], true
+      , [dragleave], false
+      , [drop], false
     );
+
+    var draggedOver = {};
+
+    // We join drop and dragover so that 'preventDefault' gets called
+    // when we want to drop something.
+    drop = Bacon.when<string>(
+        [dragover], () => draggedOver
+      , [drop], id
+    ).filter( x => x !== draggedOver );
 
     return {drop: drop, over: over};
 }
@@ -55,3 +65,5 @@ export interface DragDropStream {
     over: Bacon.Property<boolean>;
     drop: Bacon.Stream<string>;
 }
+
+function id(x) { return x; }

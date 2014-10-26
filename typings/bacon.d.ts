@@ -16,6 +16,14 @@ declare module "bacon" {
       , pat2: Observable<any>[], f2: (...any) => T
       , pat3: Observable<any>[], f3: (...any) => T
     ): Property<T>
+    function update<T>(
+        initial: T
+      , ...any
+    ): Property<T>
+
+    function when<T>(
+        ...any
+    ): Stream<T>
 
     interface Bus<T> extends Stream<T> {
         push(value: T): void;

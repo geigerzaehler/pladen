@@ -104,3 +104,20 @@
   right: 0;
   bottom: 0;
 }
+
+
+@mixin progress-bar($value-color, $background-color: transparent) {
+   -webkit-appearance: none;
+      -moz-appearance: none;
+           appearance: none;
+
+  border: none;
+  background-color: $background-color;
+
+  color: $value-color;
+  &::-moz-progress-bar      { background-color: $value-color; }
+  &::-webkit-progress-value { background-color: $value-color; }
+  &::-webkit-progress-bar {
+    background-color: transparent;
+  }
+}

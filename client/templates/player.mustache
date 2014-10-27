@@ -17,8 +17,12 @@
         </div>
 
         <div class="player-playing">
-          <div class="player-progress-buffer"></div>
-          <div class="player-progress-play"></div>
+          <progress class="player-progress-play"
+            aria-label="Play Progress"
+            max=100></progress>
+          <progress class="player-progress-buffer"
+            aria-label="Buffer Progress"
+            max=100></progress>
           <div class="player-info">
             <div class="player-title">{{title}}</div>
             <div class="player-artist">{{artist}}</div>

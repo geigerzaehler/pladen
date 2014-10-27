@@ -15,7 +15,7 @@ define [
   'views/modal_manager'
   'views/album'
   'views/artists'
-  'views/player'
+  'views/player2'
   'global'
   'oneline'
   'bus'
@@ -40,7 +40,7 @@ define [
   ModalManager
   {AlbumCollectionView, ReleaseCollection}
   ArtistsView
-  Player
+  {Player}
   {instance: global}
   oneline
   Bus
@@ -107,6 +107,7 @@ define [
         @albumsView = new ReleaseCollection(@recentReleases)
 
         @player = new Player(@tracks)
+        @player.uiToggleShowPlaylist.log('toggle playlist')
 
         @tabs = new ContentView
           artists: @artistSearchView

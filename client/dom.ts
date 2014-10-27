@@ -28,7 +28,10 @@ import Bacon = require('bacon')
 export function dragDropStream(el: HTMLElement, type: string): DragDropStream {
     function eventFilter(ev: DragEvent) {
         var types:any = ev.dataTransfer.types;
-        return types.indexOf(type) >= 0
+        if (typeof types.contains == 'function')
+            return types.contains(type);
+        else
+            return types.indexOf(type) >= 0;
     }
 
     function filteredEventStream(event: string) {

@@ -17,8 +17,6 @@ export class Player extends View {
         this.template = playerTemplate();
         super(this.template.$el);
 
-        this.state = { playing: false }
-
         this.setupDragEvents();
 
         this.uiTogglePlay =
@@ -38,9 +36,6 @@ export class Player extends View {
     private uiTogglePlay: Bacon.Stream<void>;
     private uiSetPosition: Bacon.Property<number>;
     private uiToggleShowPlaylist: Bacon.Stream<void>;
-
-    private state: PlayerState;
-
 
     play(track: Track.Attributes) {
         this.audio.play(track);
@@ -85,6 +80,8 @@ export class Player extends View {
  * Template abstraction for the player
  *
  * Only concerns formatting and rendering data to the DOM.
+ *
+ * TODO Instead of progress in percent use absolute progress
  */
 interface PlayerTemplate {
     $el: JQuery;
@@ -158,19 +155,13 @@ function playerTemplate(): PlayerTemplate {
         },
 
         playProgress: function(p: number) {
-            $playProgress.css('width', (p*100) + '%');
+            $playProgress.attr('value', p * 100);
         },
 
         bufferProgress: function(p: number) {
-            $bufferProgress.css('width', (p*100) + '%');
+            $bufferProgress.attr('value', p * 100);
         }
     };
-}
-
-
-interface PlayerState {
-    playing: boolean;
-    currentTrack?: Track.Track;
 }
 
 
@@ -205,16 +196,13 @@ class PlayerAudio {
 
 
     constructor() {
-        var w: any = window;
-        w._a = this;
         this.backend = new Audio();
         this.backend.preload = 'auto';
-
 
         this._currentTrack = new Bacon.Bus();
         this.currentTrack = this._currentTrack.toProperty(undefined);
 
-
+        // Current time and duration
         this.currentTime =
             Bacon.fromEventTarget(this.backend, 'timeupdate')
             .map(_ => this.backend.currentTime)
@@ -242,6 +230,7 @@ class PlayerAudio {
         );
 
 
+        // Buffer length and progress
         var bufferLength =
             Bacon.fromEventTarget(this.backend, 'progress')
             .map(_ => this.backend.buffered.end(0));
@@ -252,6 +241,7 @@ class PlayerAudio {
         );
 
 
+        // Playing and pausing
         var playingEvent = Bacon.fromEventTarget(this.backend, 'playing');
         var pauseEvent = Bacon.fromEventTarget(this.backend, 'pause');
 

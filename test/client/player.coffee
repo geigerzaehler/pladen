@@ -46,5 +46,8 @@ define ['views/player2', 'support', 'support/audio', 'support/events']
 
       describe 'progress', ->
 
-        When -> console.log('x', @player)
-        Then 'x', -> console.log('x', @player)
+        Given 'audio', -> Audio.instance()
+        And 'play progress', -> @playerElement.find('.player-progress-play')
+
+        When -> @audio.setProgress(30, 60)
+        Then 'play progress', should.have.attr('value', '50')

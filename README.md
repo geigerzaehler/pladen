@@ -40,3 +40,5 @@ The code of this project consists of three parts.
 
 To get a deeper understanding of how the project is structured and
 built, check out the Makefile.
+
+[beets]: https://github.com/sampsyo/beets

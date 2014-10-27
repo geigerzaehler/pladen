@@ -1,5 +1,5 @@
-define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon']
-, (chai, Promise, $, chaiBuilder, chaiJquery, Bacon)->
+define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon']
+, (chai, Promise, $, chaiBuilder, chaiJquery, Bacon, sinon)->
   chai.use(chaiJquery)
   chai.use(chaiBuilder)
   should = chai.should
@@ -45,4 +45,19 @@ define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon']
         Bacon.noMore
 
 
-  return {expect, should, nextEvent, Promise, $, eventStreamPromise}
+  # Return a promise that is fullfilled when the method is called on
+  # the object.
+  promiseCall = (object, property)->
+    deferred = Promise.defer()
+
+    method = object[property]
+    object[property] = wrapper = (args...)->
+      deferred.resolve(true)
+      method.apply(this, args)
+    wrapper.restore = ->
+      object[property] = method
+
+    return deferred.promise
+
+
+  return {expect, should, nextEvent, Promise, $, eventStreamPromise, promiseCall}

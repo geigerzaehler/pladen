@@ -21,9 +21,16 @@ declare module "bacon" {
       , ...any
     ): Property<T>
 
+
     function when<T>(
         ...any
     ): Stream<T>
+
+    function combineWith<T>(
+        f: (...any) => T
+      , ...props: Property<any>[]
+    ): Property<T>;
+
 
     interface Bus<T> extends Stream<T> {
         push(value: T): void;
@@ -61,5 +68,9 @@ declare module "bacon" {
 
     interface Property<T> extends Observable<T> {
         assign(o: any, method: string, ...args: any[]);
+        toEventStream(): Stream<T>;
+
+        map<S>(f: (t:T) => S): Property<S>;
+        filter(f: (t:T) => boolean): Property<T>;
     }
 }

@@ -44,14 +44,17 @@ watch 'Pladen/**/*.hs', tags
 
 
 # Development server
-server = worker 'cabal', 'run'
-watch('Pladen/**/*.hs', server.restart)
+server = worker 'bin/server'
+watch 'bin/server', server.restart
+
+buildServer = runner 'make server'
+watch('Pladen/**/*.hs', buildServer)
 
 
 # Reload browser
-{reload} = frish(3008)
+# {reload} = frish(3008)
 # server.on('restart', reload)
-watch('assets', 'client/**/*.js', reload)
+# watch('assets', 'client/**/*.js', reload)
 
 
 # Karma

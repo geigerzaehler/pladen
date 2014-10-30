@@ -17,7 +17,7 @@
     "mocha": "^1.21.4",
     "mocha-when-then": "^0.4.2",
     "requirejs": "^2.1.15",
-    "schaffen": "^0.5.2",
+    "schaffen": "^0.6.0",
     "sinon": "^1.10.3",
     "underscore": "^1.7.0"
   }

@@ -99,7 +99,6 @@ export class Signal<T> {
 
         this.$el = $el;
         this.event = event;
-        this.selector = selector;
         this.bindings = [];
         this.dispatcher = this.dispatch.bind(this);
     }

@@ -1,5 +1,5 @@
 define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon']
-, (chai, Promise, $, chaiBuilder, chaiJquery, Bacon, sinon)->
+, (chai, Promise, $, chaiBuilder, chaiJquery, Bacon)->
   chai.use(chaiJquery)
   chai.use(chaiBuilder)
   should = chai.should
@@ -60,4 +60,7 @@ define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon
     return deferred.promise
 
 
-  return {expect, should, nextEvent, Promise, $, eventStreamPromise, promiseCall}
+  return {
+    expect, should, nextEvent, Promise, $,
+    eventStreamPromise, promiseCall, sinon
+  }

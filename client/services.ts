@@ -3,7 +3,7 @@ import _ = require('underscore');
 var map = _.map;
 
 
-export class ServiceProvider {
+export class Provider {
 
     provide(name: string, s: Service<any>) {
         this.services[name] = s;
@@ -25,7 +25,7 @@ export class ServiceProvider {
 
         this.resolving.push(name);
         var deps = map(service.deps, (d) => this.get(d));
-        var instance = service.init(deps);
+        var instance = this.instances[name] = service.init(deps);
         this.resolving.pop();
         return instance;
     }

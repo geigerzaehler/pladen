@@ -1,12 +1,12 @@
 define ['services', 'support']
 , (
-  {ServiceProvider, service},
-  {should}
+  {Provider, service},
+  {should, sinon}
 )->
 
   describe 'services', ->
 
-    Given 'a provider', -> new ServiceProvider
+    Given 'a provider', -> new Provider
 
     When -> @provider.provide('a', service -> 'no deps')
     When 'service', -> @provider.get('a')
@@ -17,3 +17,11 @@ define ['services', 'support']
     When -> @provider.provide('c', service -> 'c')
     When 'service', -> @provider.get('a')
     Then 'service', should.deep.equal(['b', 'c'])
+
+    When 'init', -> sinon.spy(-> 'a')
+    When -> @provider.provide('a', service @init)
+    When ->
+      @provider.get('a')
+      @provider.get('a')
+      @provider.get('a')
+    Then 'init', sinon.assert.calledOnce

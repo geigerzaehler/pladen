@@ -1,5 +1,10 @@
-/// <reference path="..//typings/bacon.d.ts" />
+/// <reference path="../typings/bacon.d.ts" />
+/// <reference path="../typings/jquery/jquery.d.ts" />
+/// <reference path="../typings/underscore/underscore.d.ts" />
 import Bacon = require('bacon')
+import _ = require('underscore');
+var find = _.find;
+var each = _.each;
 
 
 /**
@@ -56,7 +61,7 @@ export function dragDropStream(el: HTMLElement, type: string): DragDropStream {
 
     // We join drop and dragover so that 'preventDefault' gets called
     // when we want to drop something.
-    drop = Bacon.when<string>(
+    drop = Bacon.when<any>(
         [dragover], () => draggedOver
       , [drop], id
     ).filter( x => x !== draggedOver );
@@ -67,6 +72,100 @@ export function dragDropStream(el: HTMLElement, type: string): DragDropStream {
 export interface DragDropStream {
     over: Bacon.Property<boolean>;
     drop: Bacon.Stream<string>;
+}
+
+
+export function voidSignal($el: JQuery, event: string, selector?: string) {
+    return new Signal<void>($el, event, () => {}, selector);
+}
+
+export class Signal<T> {
+    constructor($el: JQuery, event: string,
+                selector?: string, transformer?: (e: JQueryEventObject) => T)
+    constructor($el: JQuery, event: string,
+                transformer?: (e: JQueryEventObject) => T, selector?: string)
+    constructor($el: JQuery, event: string, selector: any, transformer: any) {
+        if (typeof selector == 'string')
+            this.selector = selector;
+        else if (typeof transformer == 'string')
+            this.selector = transformer;
+        if (typeof selector == 'function')
+            this.transform = selector;
+        else if (typeof transformer == 'function')
+            this.transform = transformer;
+
+        if (typeof this.transform == 'undefined')
+            this.transform == id;
+
+        this.$el = $el;
+        this.event = event;
+        this.selector = selector;
+        this.bindings = [];
+        this.dispatcher = this.dispatch.bind(this);
+    }
+
+    add(l: (param:T) => void): () => void {
+        var binding = new SignalBinding<T>(l);
+        this.bindings.push(binding)
+        this.activate();
+        return () => this.remove(binding);
+    }
+
+    once(l: (param:T) => void): () => void {
+        var binding = new SignalBinding<T>(l, true);
+        this.bindings.push(binding)
+        this.activate();
+        return () => this.remove(binding);
+    }
+
+    private dispatch(e: JQueryEventObject) {
+        each(this.bindings.slice(), b => {
+            b.listener(this.transform(e));
+            if (b.once)
+                this.remove(b);
+        });
+    }
+
+    private remove(b: SignalBinding<T>) {
+        var i = this.bindings.indexOf(b)
+        if (i >= 0)
+            this.bindings.splice(i, 1);
+        if (this.bindings.length == 0)
+            this.deactivate();
+    }
+
+    private activate() {
+        if (this.active)
+            return;
+        this.$el.on(this.event, this.selector, this.dispatcher)
+        this.active = true;
+    }
+
+    private deactivate() {
+        if (!this.active)
+            return;
+        this.$el.off(this.event, this.selector, this.dispatcher)
+        this.active = false;
+    }
+
+    private $el: JQuery;
+    private event: string;
+    private selector: string;
+    private active: boolean;
+    private bindings: SignalBinding<T>[];
+    private transform: (e: JQueryEventObject) => T;
+    private dispatcher: (e: JQueryEventObject) => void;
+}
+
+
+class SignalBinding<T> {
+    constructor(l: (x:T) => void, once = false) {
+        this.listener = l;
+        this.once = once;
+    }
+
+    listener: (x:T) => void;
+    once: boolean;
 }
 
 function id(x) { return x; }

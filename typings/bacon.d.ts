@@ -4,36 +4,36 @@ declare module "bacon" {
     function update<T>(
         initial: T
       , pat1: Observable<any>[], f1: (...any) => T
-    ): Property<T>
+    ): Property<T>;
     function update<T>(
         initial: T
       , pat1: Observable<any>[], f1: (...any) => T
       , pat2: Observable<any>[], f2: (...any) => T
-    ): Property<T>
+    ): Property<T>;
     function update<T>(
         initial: T
       , pat1: Observable<any>[], f1: (...any) => T
       , pat2: Observable<any>[], f2: (...any) => T
       , pat3: Observable<any>[], f3: (...any) => T
-    ): Property<T>
+    ): Property<T>;
     function update<T>(
         initial: T
       , ...any
-    ): Property<T>
+    ): Property<T>;
 
 
     function when<T>(
         pat1: Observable<any>[], f1: (...any) => T
-    ): Stream<T>
+    ): Stream<T>;
     function when<T>(
         pat1: Observable<any>[], f1: (...any) => T
       , pat2: Observable<any>[], f2: (...any) => T
-    ): Stream<T>
+    ): Stream<T>;
     function when<T>(
         pat1: Observable<any>[], f1: (...any) => T
       , pat2: Observable<any>[], f2: (...any) => T
       , pat3: Observable<any>[], f3: (...any) => T
-    ): Stream<T>
+    ): Stream<T>;
 
     function combineWith<T>(
         f: (...any) => T

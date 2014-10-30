@@ -47,12 +47,6 @@ clean:
 	rm $(CABAL_DEPS)
 
 
-# Generate tags for project and cabal packages
-tags: $(SERVER_SOURCES) codex.tags
-	hasktags --ctags $(SERVER_SOURCES)
-
-codex.tags: $(CABAL_DEPS)
-	codex update
 
 
 
@@ -183,3 +177,14 @@ $(CABAL_DEPS): pladen.cabal $(CABAL_SANDBOX)
 # Create the cabal sandbox
 $(CABAL_SANDBOX):
 	cabal sandbox init
+
+
+
+# More development tasks
+
+# Generate tags for project and cabal packages
+tags: $(SERVER_SOURCES) codex.tags
+	hasktags --ctags $(SERVER_SOURCES)
+
+codex.tags: $(CABAL_DEPS)
+	codex update

@@ -56,12 +56,9 @@ export class Service<T> {
     deps: string[];
 
     init(args: any[]): T {
-        if (!this.initiated)
-            this.instance = this._init.apply(undefined, args);
-        return this.instance;
+        return this._init.apply(undefined, args);
     }
 
-    private initiated: boolean = false;
     private instance: T;
     private _init: (...any) => T;
 }

@@ -4,7 +4,7 @@ define ['services', 'support']
   {should}
 )->
 
-  describe.only 'services', ->
+  describe 'services', ->
 
     Given 'a provider', -> new ServiceProvider
 

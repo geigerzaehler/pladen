@@ -196,7 +196,9 @@ class PlayerAudio {
 
 
     constructor() {
+        var w:any = window;
         this.backend = new Audio();
+        w._a = this.backend;
         this.backend.preload = 'auto';
 
         this._currentTrack = new Bacon.Bus();
@@ -233,7 +235,7 @@ class PlayerAudio {
         // Buffer length and progress
         var bufferLength =
             Bacon.fromEventTarget(this.backend, 'progress')
-            .map(_ => this.backend.buffered.end(0));
+            .map(_ => this.backend.buffered.length && this.backend.buffered.end(0));
         
         this.bufferProgress = Bacon.update(
             NaN

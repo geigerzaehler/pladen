@@ -103,11 +103,9 @@ define [
           theSearchView,
           new ArtistsView(@artists, @vent)
         )
-        # @albumsView = new AlbumCollectionView(@recentAlbums)
         @albumsView = new ReleaseCollection(@recentReleases)
 
         @player = new Player(@tracks)
-        @player.uiToggleShowPlaylist.log('toggle playlist')
 
         @tabs = new ContentView
           artists: @artistSearchView

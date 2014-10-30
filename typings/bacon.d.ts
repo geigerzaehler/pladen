@@ -23,7 +23,16 @@ declare module "bacon" {
 
 
     function when<T>(
-        ...any
+        pat1: Observable<any>[], f1: (...any) => T
+    ): Stream<T>
+    function when<T>(
+        pat1: Observable<any>[], f1: (...any) => T
+      , pat2: Observable<any>[], f2: (...any) => T
+    ): Stream<T>
+    function when<T>(
+        pat1: Observable<any>[], f1: (...any) => T
+      , pat2: Observable<any>[], f2: (...any) => T
+      , pat3: Observable<any>[], f3: (...any) => T
     ): Stream<T>
 
     function combineWith<T>(

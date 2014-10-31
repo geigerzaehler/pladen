@@ -19,7 +19,7 @@ export class Provider {
     private resolve(name: string) {
         var service = this.services[name]
         if (typeof service == 'undefined')
-            throw Error('Service ' + name + 'is not provided');
+            throw Error('Service "' + name + '" not provided');
         if (this.resolving.indexOf(name) >= 0)
             throw Error('Circular dependency in requiring ' + name);
 
@@ -59,6 +59,5 @@ export class Service<T> {
         return this._init.apply(undefined, args);
     }
 
-    private instance: T;
     private _init: (...any) => T;
 }

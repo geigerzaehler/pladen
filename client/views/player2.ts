@@ -2,8 +2,15 @@
 import Bacon = require('bacon')
 import moment = require('moment');
 
+import services = require('services');
+import service = services.service;
+import Service = services.Service;
+import player = require('../player');
+import Backend = player.Player
+
 import css = require('css_promise');
 import dom = require('dom');
+import dm = require('dom/mutators');
 import templates = require('templates');
 
 import ViewModule = require('views/base/view2');
@@ -13,7 +20,7 @@ import Track = require('models/track');
 
 
 export class Player extends View {
-    constructor() {
+    constructor(audio: Backend) {
         this.template = playerTemplate();
         super(this.template.$el);
 
@@ -30,6 +37,7 @@ export class Player extends View {
         this.uiToggleShowPlaylist.onValue(() => this.template.togglePlaylist());
         this.template.togglePlaylist(false);
 
+        this.audio = audio;
         this.setupAudio();
     }
 
@@ -37,23 +45,21 @@ export class Player extends View {
     private uiSetPosition: Bacon.Property<number>;
     private uiToggleShowPlaylist: Bacon.Stream<void>;
 
-    play(track: Track.Attributes) {
-        this.audio.play(track);
-    }
-
     private setupDragEvents() {
-        var dragDropStream = dom.dragDropStream(this.$('.player-drop-target')[0],
-                                                'application/x-play-track');
+        var dragDropStream = dom.dragDropStream(
+            this.$('.player-drop-target')[0],
+            'application/x-play-track'
+        );
 
         dragDropStream.over.onValue(this.template.dropTarget)
         dragDropStream.drop
             .map(JSON.parse)
-            .onValue( t => this.play(t) )
+            .onValue( t => this.audio.play(t) )
     }
 
     private setupAudio() {
         var t = this.template;
-        var audio = this.audio = new PlayerAudio();
+        var audio = this.audio;
 
         audio.currentTrack.onValue(track => {
             t.empty(!track);
@@ -71,8 +77,8 @@ export class Player extends View {
         this.uiTogglePlay.onValue(() => audio.togglePlay());
     }
 
-    private audio: PlayerAudio;
     private template: PlayerTemplate;
+    private audio: Backend;
 }
 
 
@@ -98,31 +104,26 @@ interface PlayerTemplate {
 function playerTemplate(): PlayerTemplate {
 
     var $el = $(templates.player());
-    var $duration = $el.find('.player-duration');
-    var $title = $el.find('.player-title');
-    var $artist = $el.find('.player-artist');
-    var $duration = $el.find('.player-duration');
-    var $playProgress = $el.find('.player-progress-play');
-    var $bufferProgress = $el.find('.player-progress-buffer');
     var $playlist = $el.find('.player-playlist-window');
-    var $playPause = $el.find('.player-control-play');
+
+    function durationFormat(d: number) {
+        if (typeof d === 'undefined' || d === NaN)
+            return '';
+        else
+            return moment.utc(d * 1000).format('m:ss');
+    }
 
     return {
         $el: $el,
 
-        empty: function(e: boolean) {
-            $el.toggleClass('empty', e);
-        },
+        empty:      dm.toggleClass('empty', $el),
+        dropTarget: dm.toggleClass('over', $el),
 
-        dropTarget: function(d: boolean) {
-            $el.toggleClass('over', d);
-        },
-
-        playing: function(p: boolean) {
-            var label = p ? 'Pause' : 'Play'
-            $playPause.attr('aria-label', label);
-            $el.toggleClass('playing', p);
-        },
+        playing: dm.join(
+            dm.attr('aria-label', $el, '.player-control-play')
+              .trsf(p => p ? 'Pause' : 'Play')
+          , dm.toggleClass('playing', $el)
+        ),
 
         togglePlaylist(show?: boolean) {
             if (typeof show != 'boolean')
@@ -137,130 +138,12 @@ function playerTemplate(): PlayerTemplate {
             }
         },
 
-        duration: function(d: number) {
-            var formatted;
-            if (typeof d === 'undefined' || d === NaN)
-                formatted = '';
-            else
-                formatted = moment.utc(d * 1000).format('m:ss');
-            $duration.text(formatted);
-        },
+        duration: dm.text($el, '.player-duration').trsf(durationFormat),
 
-        title: function(t: string) {
-            $title.text(t);
-        },
+        title:  dm.text($el, '.player-title'),
+        artist: dm.text($el, '.player-artist'),
 
-        artist: function(a: string) {
-            $artist.text(a);
-        },
-
-        playProgress: function(p: number) {
-            $playProgress.attr('value', p * 100);
-        },
-
-        bufferProgress: function(p: number) {
-            $bufferProgress.attr('value', p * 100);
-        }
+        playProgress:   dm.attr('value', $el, '.player-progress-play'),
+        bufferProgress: dm.attr('value', $el, '.player-progress-buffer')
     };
 }
-
-
-/**
- * Adapter for the HTMLAudioElement that is used by Player
- */
-class PlayerAudio {
-
-    playing: Bacon.Property<boolean>;
-    currentTrack: Bacon.Property<Track.Attributes>;
-    currentTime: Bacon.Property<number>;
-    duration: Bacon.Property<number>;
-    playProgress: Bacon.Property<number>;
-    bufferProgress: Bacon.Property<number>;
-
-    play(track: Track.Attributes) {
-        this._currentTrack.push(track);
-        this.backend.src = '/track/' + track.id + '/file';
-        this.backend.play();
-    }
-    
-    pause() {
-        this.backend.pause();
-    }
-
-    togglePlay() {
-        if (this._isPlaying)
-            this.backend.pause();
-        else
-            this.backend.play();
-    }
-
-
-    constructor() {
-        var w:any = window;
-        this.backend = new Audio();
-        w._a = this.backend;
-        this.backend.preload = 'auto';
-
-        this._currentTrack = new Bacon.Bus();
-        this.currentTrack = this._currentTrack.toProperty(undefined);
-
-        // Current time and duration
-        this.currentTime =
-            Bacon.fromEventTarget(this.backend, 'timeupdate')
-            .map(_ => this.backend.currentTime)
-            .toProperty(this.backend.currentTime);
-
-        var currentTrackLength =
-            this.currentTrack
-            .map(t => t && t.length)
-
-        var backendDuration =
-            Bacon.fromEventTarget(this.backend, 'durationchange')
-            .map(_ => this.backend.duration)
-            .filter(l => l !== Infinity)
-            .toProperty(this.backend.duration);
-
-        this.duration = Bacon.update(
-            NaN
-          , [currentTrackLength.toEventStream()], snd
-          , [backendDuration.toEventStream()], snd
-        );
-
-        this.playProgress = Bacon.combineWith(
-            (currentTime, duration) => currentTime / duration,
-            this.currentTime, this.duration
-        );
-
-
-        // Buffer length and progress
-        var bufferLength =
-            Bacon.fromEventTarget(this.backend, 'progress')
-            .map(_ => this.backend.buffered.length && this.backend.buffered.end(0));
-        
-        this.bufferProgress = Bacon.update(
-            NaN
-          , [bufferLength, this.duration], (p, l, d) => l / d
-        );
-
-
-        // Playing and pausing
-        var playingEvent = Bacon.fromEventTarget(this.backend, 'playing');
-        var pauseEvent = Bacon.fromEventTarget(this.backend, 'pause');
-
-        this.playing = Bacon.update(
-            false
-          , [playingEvent], () => true
-          , [pauseEvent], () => false
-        );
-        this.playing.onValue( x => this._isPlaying = x );
-
-    }
-
-
-    private backend: HTMLAudioElement;
-    private _currentTrack: Bacon.Bus<Track.Attributes>;
-    private _isPlaying: boolean;
-}
-
-
-function snd<T>(x: any, y: T): T { return y }

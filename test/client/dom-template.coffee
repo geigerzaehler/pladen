@@ -1,7 +1,7 @@
 define ['dom/template', 'support']
 , (template, {should})->
 
-  describe.only 'dom template', ->
+  describe 'dom template', ->
 
     When 'template', template('<p> {{name}} </p>')
     When -> @template.name('Mike')

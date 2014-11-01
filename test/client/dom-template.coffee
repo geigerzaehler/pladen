@@ -1,7 +1,7 @@
 define ['dom/template', 'support']
 , (template, {should})->
 
-  describe 'dom template', ->
+  describe.only 'dom template', ->
 
     When 'template', template('<p> {{name}} </p>')
     When -> @template.name('Mike')
@@ -42,3 +42,17 @@ define ['dom/template', 'support']
       When -> @template.ho('oh')
       Then '$el', should.not.have.class('yeah')
       Then '$el', should.have.class('oh')
+
+    describe 'element slot', ->
+      Given 'template', template('<div><div data-slot=slot><span>{{content}}')
+      Given '$el', -> $(@template.el)
+
+      When -> @template.slot($('<p>jo</p>')[0])
+      Then '$el', should.have.descendants('p').and.have.text('jo')
+      Then '$el', should.not.have.descendants('span')
+
+      When -> @template.slot($('<p>jo</p>')[0])
+      When -> @template.slot(null)
+      Then '$el', should.have.descendants('span').and.text('{{content}}')
+
+      Then 'template', should.not.have.property('content')

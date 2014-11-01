@@ -5,7 +5,15 @@ function template(src: string) {
     wrapper.innerHTML = src;
     t.el = wrapper.removeChild(wrapper.children[0]);
 
-    walk(t.el, function(e: HTMLElement) {
+    var w = document.createTreeWalker(t.el, NodeFilter.SHOW_ELEMENT, null, false);
+    var e = t.el
+    while (e) {
+        if (e.hasAttribute('data-slot')) {
+            p = e.getAttribute('data-slot');
+            t[p] = slotMutator(e);
+            e = w.nextSibling();
+            continue
+        }
         if (p = textPlaceholder(e))
             t[p] = textMutator(e);
         
@@ -21,20 +29,12 @@ function template(src: string) {
             if (p = placeholder(c))
                 t[p] = classMutator(p, e);
         })
-        
-    })
+        e = w.nextNode();
+    }
+
     return t;
 }
 
-
-function walk(r: HTMLElement, iterator: (e: HTMLElement) => void) {
-    var n;
-    var w = document.createNodeIterator(r, NodeFilter.SHOW_ELEMENT, null, false);
-    iterator(r);
-    while (n = w.nextNode()) {
-        iterator(n);
-    }
-}
 
 
 var placeholderRE = /^\s*{{(\w+)}}\s*$/;
@@ -51,18 +51,18 @@ function placeholder(s: string): string {
 
 
 function textMutator(n: Node) {
-    return function(t: string) { n.textContent = t }
+    return function setText(t: string) { n.textContent = t }
 }
 
 
 function attrMutator(name: string, e: HTMLElement) {
-    return function(v: string) { e.setAttribute(name, v); }
+    return function setAttr(v: string) { e.setAttribute(name, v); }
 }
 
 
 function classMutator(name: string, e: HTMLElement) {
     var prev;
-    return function(v: any) {
+    return function setClass(v: any) {
         if (prev)
             e.classList.remove(prev);
         if (v === true) {
@@ -75,5 +75,16 @@ function classMutator(name: string, e: HTMLElement) {
             e.classList.add(v);
             prev = v;
         }
+    }
+}
+
+
+function slotMutator(e: HTMLElement) {
+    var current = e;
+    return function replaceElement(r?: HTMLElement) {
+        if (!r)
+            r = e;
+        current.parentElement.replaceChild(r, current);
+        current = r;
     }
 }

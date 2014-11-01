@@ -53,7 +53,9 @@ module.exports = function(config) {
     ].concat(values(nodeModules).map(amdPattern)),
 
     client: {
-      requirePaths: mapValues(amdModules, amdPath)
+      requirePaths: mapValues(amdModules, amdPath),
+      captureConsole: true,
+      useIframe: true,
     },
 
 

@@ -3,6 +3,7 @@ var each = underscore.each;
 var some = underscore.some;
 
 import css = require('css_promise');
+import Services = require('services');
 import DataTemplateView = require('./base/data_template');
 import View = require('./base/view');
 import query = require('query');
@@ -21,7 +22,7 @@ class ArtistsView extends View {
         return '<ol class=artist-list>';
     }
 
-    constructor(public artists: Artist.Collection) {
+    constructor(public artists: Artist.Collection, private services: Services.Provider) {
         super();
         this.app.search.add((f) => {
             this.filter(f);
@@ -80,7 +81,7 @@ class ArtistsView extends View {
     }
 
     private createItemView(artist: Artist.Model) {
-        return new ArtistView(artist);
+        return new ArtistView(artist, this.services);
     }
 
     private views: ArtistView[] = [];
@@ -100,7 +101,7 @@ class ArtistView extends DataTemplateView {
         return 'artist';
     }
 
-    constructor(public artist: Artist.Model) {
+    constructor(public artist: Artist.Model, private services: Services.Provider) {
         super(artist);
         artist.changed.add(() => { this.render() });
         this.render();
@@ -110,7 +111,7 @@ class ArtistView extends DataTemplateView {
         super.render();
         var albumList = this.$('.artist-album-list');
         each(this.artist.albums, (album) => {
-            var view = new AlbumView(album);
+            var view = new AlbumView(album, this.services);
             view.render();
             albumList.append(view.el);
         })
@@ -137,9 +138,9 @@ class AlbumView extends DataTemplateView {
         'click button': 'toggleExpansion'
     }}
 
-    constructor(public album: Album) {
+    constructor(public album: Album, p: Services.Provider) {
         super(album);
-        this.expansion = new AlbumExpansion(album);
+        this.expansion = new AlbumExpansion(album, p);
         this.expansion.loading.add((loaded) => {
             css.transitionShow(this.loading, 'active');
             loaded.then(() => {

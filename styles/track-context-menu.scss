@@ -1,0 +1,48 @@
+// $tcm-background: hsl(0, 0%, 10%);
+$tcm-background: white;
+
+.track-context-menu {
+  position: absolute;
+  margin-top: 12px;
+
+  // font-size: font-scale(1);
+  &:before {
+    position: absolute;
+    top: -12px;
+    left: 1.8em;
+    border-bottom: 12px solid $tcm-background;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    content: "";
+  }
+}
+
+.track-context-menu-controls {
+  display: flex;
+  overflow: hidden;
+
+  border-radius: 5px;
+
+  color: $teal;
+  font-weight: 700;
+  line-height: 2;
+}
+
+.track-context-menu button {
+  padding: 0 1em;
+  @extend %button-reset;
+
+  transition: background-color 0.2s;
+  background: $tcm-background;
+  @include active {
+    background: hsl(0, 0%, 30%);
+    background: $teal;
+    color: white;
+  }
+}
+
+.track-context-menu .icon {
+  padding-top: 0.5em;
+  display: inline-block;
+  vertical-align: top;
+}

@@ -21,6 +21,9 @@ define [
   'bus'
   'bacon'
   'views/search2'
+  'services'
+  'player'
+  'drag-track'
   'moment/lang/de'
   'es5-shim'
 ], (
@@ -46,6 +49,9 @@ define [
   Bus
   Bacon
   {searchView}
+  {Provider}
+  {player}
+  dragTrack
 )->
 
 
@@ -79,6 +85,10 @@ define [
 
     _start: ->
       w.try =>
+        services = new Provider
+        services.provide('player', player)
+        services.provide('drag-track', dragTrack)
+
         oneline(document)
 
         @modal = new ModalManager($('body'))
@@ -101,11 +111,11 @@ define [
 
         @artistSearchView = new BagView(
           theSearchView,
-          new ArtistsView(@artists, @vent)
+          new ArtistsView(@artists, services)
         )
-        @albumsView = new ReleaseCollection(@recentReleases)
+        @albumsView = new ReleaseCollection(@recentReleases, services)
 
-        @player = new Player(@tracks)
+        @player = new Player(services.get('player'))
 
         @tabs = new ContentView
           artists: @artistSearchView

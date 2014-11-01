@@ -3,9 +3,14 @@ import w = require('when');
 import _ = require('underscore');
 import Promise = w.Promise;
 import cssp = require('css_promise');
+import services = require('services');
+import Provider = services.Provider;
 import Signal = require('signals');
 import SignalObserver = require('signal_observer');
+import templates = require('templates');
 
+import player = require('../player');
+import Player = player.Player;
 import A = require('models/album');
 import ModalManager = require('./modal_manager');
 import View = require('./base/view');
@@ -22,8 +27,9 @@ export class ReleaseCollection extends View {
     get elementTemplate()
     { return '<ol class="releases">' }
 
-    constructor(private collection: B.List<R.Release>) {
+    constructor(private collection: B.List<R.Release>, p: Provider) {
         super();
+        this.provider = p;
         this.render();
         this.collectionObserver.on(collection.inserted, this.insert);
     }
@@ -54,13 +60,14 @@ export class ReleaseCollection extends View {
 
     private createItemView(r: R.Release): DataTemplate {
         if (r.album)
-            return new AlbumView(r.album);
+            return new AlbumView(r.album, this.provider);
         else
-            return new TrackView(r.track)
+            return new TrackView(r.track, this.provider)
     }
 
     private views: DataTemplate[] = [];
     private collectionObserver = new SignalObserver(this);
+    private provider: Provider;
 }
 
 
@@ -71,20 +78,14 @@ export class TrackView extends DataTemplate {
     get template()
     { return 'track-release' }
 
-    constructor(private track: Track.Track) {
+    constructor(private track: Track.Track, services: Provider) {
         super(track);
         this.render();
 
+        // TODO Use static typing for provider
+        var dragTrack = services.get('drag-track');
         this.$el.on('dragstart', '.release-head', (e:any) => {
-            var dt = e.originalEvent.dataTransfer;
-            dt.dropEffect = 'none';
-            dt.effectAllowed = 'copy';
-            dt.setData('application/x-play-track',
-                       JSON.stringify(Track.pickAttributes(this.track)));
-            var rd = ReleaseDrag.instance;
-            rd.track = track;
-            dt.setDragImage(rd.el, 0, 0);
-
+            dragTrack(this.track, e.originalEvent.dataTransfer);
             $('html').addClass('drag-track');
         });
         this.$el.on('dragend', '.release-head', (e:any) => {
@@ -108,39 +109,6 @@ export class TrackView extends DataTemplate {
 }
 
 
-export class ReleaseDrag extends DataTemplate {
-
-    get elementTemplate()
-    { return '<div class=drag-release>' }
-
-    get template()
-    { return 'drag-release' }
-
-    static get instance() {
-        if (!this._instance) {
-            this._instance = new ReleaseDrag(null);
-            this._instance.$el.appendTo('.hidden-box');
-        }
-        return this._instance;
-    }
-
-    set track(t: Track.Track) {
-        this.release = {
-            name: t.title,
-            artist: t.artist
-        }
-    }
-
-
-    private set release(m: {name: string; artist: string}) {
-        this.model = m;
-        this.render();
-    }
-
-    private static _instance: ReleaseDrag;
-}
-
-
 /**
  * Show album information.
  *
@@ -161,9 +129,9 @@ export class AlbumView extends DataTemplate {
         'click .release-head': 'toggleExpansion'
     }}
 
-    constructor(public model: A.Album) {
+    constructor(public model: A.Album, p: Provider) {
         super(model);
-        this.expansion = new AlbumExpansion(model);
+        this.expansion = new AlbumExpansion(model, p);
         this.expansion.loading.add((loaded) => {
             cssp.transitionShow(this.loading, 'active');
             loaded.then(() => {
@@ -228,27 +196,31 @@ export class AlbumExpansion extends DataTemplate {
      */
     loading = new Signal<Promise<void>>();
 
-    constructor(public album: A.Album) {
+    constructor(public album: A.Album, p: Provider) {
         super(album);
         album.changed.add(() => {
             this.render();
         })
 
+        if (this.album.downloadable)
+            this.$el.on('click', '.album-track', function() {
+                var track = trackFromId($(this).attr('data-id'));
+                // TODO Use static typing for provider
+                trackContextMenu(track, $(this), p.get('player'));
+            })
+
+        function trackFromId(id: any) {
+            return _.find(album.tracks, (track) => {
+                return track.id == id;
+            });
+        }
+
+        // TODO Use static typing for provider
+        var dragTrack = p.get('drag-track');
         this.$el.on('dragstart', '.album-track', (e:any) => {
             var dt = e.originalEvent.dataTransfer;
-            dt.dropEffect = 'none';
-            dt.effectAllowed = 'copy';
-
-            var trackId = e.target.attributes['data-id'].value;
-            var track = _.find(album.tracks, (track) => {
-                return track.id == trackId;
-            })
-            var rd = ReleaseDrag.instance;
-            rd.track = track;
-            dt.setDragImage(rd.el, 0, 0);
-            dt.setData('application/x-play-track',
-                       JSON.stringify(Track.pickAttributes(track)));
-
+            var track = trackFromId(e.target.attributes['data-id'].value);
+            dragTrack(track, dt)
             $('html').addClass('drag-track');
         });
         this.$el.on('dragend', '.album-track', (e:any) => {
@@ -318,4 +290,18 @@ export class AlbumExpansion extends DataTemplate {
     }
 
     private shown = false;
+}
+
+
+function trackContextMenu(track: Track.Attributes, $parent: JQuery, player: Player) {
+    var $el = $(templates.trackContextMenu());
+    $el.on('click', ['data-action=play'], function() {
+        player.play(track);
+    })
+    $parent.after($el);
+    setTimeout(function() {
+        $(document).one('click', function() {
+            $el.remove();
+        })
+    }, 0);
 }

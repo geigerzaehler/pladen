@@ -480,7 +480,7 @@ ol.releases > li {
   color: hsl(0, 0%, 80%);
 }
 
-.drag-release {
+.track-drag {
   font-size: font-scale(-1);
 
   display: inline-block;
@@ -490,8 +490,9 @@ ol.releases > li {
   background: hsl(0, 0%, 8%);
 }
 
-.drag-release-name {
+.track-drag > *:first-child {
   font-weight: bold;
 }
 
+@import 'track-context-menu';
 @import 'player';

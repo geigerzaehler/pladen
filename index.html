@@ -32,12 +32,6 @@
   <div class="hidden-box">
   </div>
 
-  <template name="drag-release">
-    <div class="drag-release-name">{{name}}</div>
-    <div class="drag-release-artist">{{artist}}</div>
-  </template>
-
-
   <!-- ARTISTS -->
   <template name="artist-list">
     <ol class="artist-list"></ol>
@@ -53,7 +47,7 @@
     <div class="album-loading">
       <i class="icon icon-cog"></i>
     </div>
-    <button class="artist-album-main">
+    <button class="artist-album-main" data-action="toggle-album">
       {{name}}
       <small>
         {{#year}}
@@ -111,11 +105,6 @@
       </ol>
       <a class="album-download" href="{{downloadURL}}">Download</a>
     </div>
-  </template>
-
-  <template name="drag-track">
-    <div class="drag-track-title">{{title}}</div>
-    <div class="drag-track-artist">{{artist}}</div>
   </template>
 
   <template name="track-release">

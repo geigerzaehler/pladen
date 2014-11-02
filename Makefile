@@ -12,11 +12,12 @@ export PATH := node_modules/.bin/:$(PATH)
 # server
 ASSETS = assets
 
-.PHONY: web client first all
+.PHONY: web client first all dev
 
 first: all
 
-all: client server
+all: server client
+dev: server client-dev
 
 
 # DEVELOPMENT AND DEPLOYMENT
@@ -45,7 +46,9 @@ clean: client-clean
 	rm $(CABAL_DEPS)
 
 
-
+.PHONY: todo
+todo:
+	@ack-grep '[T]ODO .*' client/ Pladen/ test/ --no-heading -o --nojs
 
 
 # BROWSER APPLICATION
@@ -64,8 +67,9 @@ client-deps:
 	which sass || gem install sass
 
 
-.PHONY: client
+.PHONY: client client-dev
 client: styles webapp
+client-dev: styles webapp-dev
 
 .PHONY: client-clean
 client-clean:

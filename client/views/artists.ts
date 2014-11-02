@@ -3,18 +3,38 @@ var each = underscore.each;
 var some = underscore.some;
 
 import css = require('css_promise');
+import tpls = require('templates');
+
+
 import Services = require('services');
 import DataTemplateView = require('./base/data_template');
 import View = require('./base/view');
 import query = require('query');
 import A = require('models/album');
 import Album = A.Album;
+import Track = require('models/track');
 import Artist = require('models/artist');
 import AlbumView = require('./album');
 import AlbumExpansion = AlbumView.AlbumExpansion;
 
 export = ArtistsView;
 
+/**
+ * This module contains the classes to build the list of artists and
+ * their albums and tracks (releases).
+ * 
+ * `ArtistsView` is a collection view that manages the creation and
+ * filtering of `ArtistView` instances.
+ *
+ * `ArtistView` is responsible for displaying all albums and single
+ * tracks of an artist.
+ *
+ * `albumView` shows album information. It also has the
+ * `AlbumExpansion` to display the tracks and provides interaction for
+ * listening to those tracks.
+ *
+ * `trackView` just creates an element that shows the track title.
+ */
 // TODO merge this with AlbumCollectionView
 class ArtistsView extends View {
 
@@ -111,64 +131,44 @@ class ArtistView extends DataTemplateView {
         super.render();
         var albumList = this.$('.artist-album-list');
         each(this.artist.albums, (album) => {
-            var view = new AlbumView(album, this.services);
-            view.render();
-            albumList.append(view.el);
+            albumView(album, this.services).appendTo(albumList);
         })
         var trackList = this.$('.artist-track-list');
         each(this.artist.tracks, (track) => {
-            var view = new TrackView(track);
-            view.render();
-            trackList.append(view.el);
+            var li = $('<li>').append(trackView(track))
+            li.appendTo(trackList)
         });
 
     }
 }
 
-class AlbumView extends DataTemplateView {
-    get elementTemplate() {
-        return '<li class=artist-album>';
-    }
 
-    get template() {
-        return 'artist-album';
-    }
+function albumView(a: Album, p: Services.Provider): JQuery {
+    var $el = $(tpls.artistAlbum(a));
 
-    get events(): {[ev: string]: string} { return {
-        'click button': 'toggleExpansion'
-    }}
+    var expansion = new AlbumExpansion(a, p);
+    expansion.$el.appendTo($el);
 
-    constructor(public album: Album, p: Services.Provider) {
-        super(album);
-        this.expansion = new AlbumExpansion(album, p);
-        this.expansion.loading.add((loaded) => {
-            css.transitionShow(this.loading, 'active');
-            loaded.then(() => {
-                css.transitionHide(this.loading, '-active');
-            })
+    var loading = $el.find('.album-loading');
+    expansion.loading.add((loaded) => {
+        css.transitionShow(loading, 'active');
+        loaded.then(() => {
+            css.transitionHide(loading, '-active');
         })
-    }
+    })
 
-    toggleExpansion() {
-        this.expansion.toggle();
-    }
+    $el.on('click', 'button[data-action=toggle-album]',
+           () => expansion.toggle());
 
-    render() {
-        super.render();
-        this.$el.append(this.expansion.$el);
-        this.loading = this.$('.album-loading');
-    }
-
-    private expansion: AlbumExpansion;
-    private loading: JQuery;
+    return $el;
 }
 
-class TrackView extends DataTemplateView {
-    get elementTemplate() {
-        return '<li class=artist-track>';
-    }
 
-    get template() {
-        return 'artist-track';
-    }
+/**
+ * Return an element that displays the track title
+ *
+ * TODO Make it possible to listen to a track.
+ */
+function trackView(t: Track.Track): JQuery {
+    return $('<div>').text(t.title);
 }

@@ -1,0 +1,16 @@
+<li class="artist-album">
+  <div class="album-loading">
+    <i class="icon icon-cog"></i>
+  </div>
+  <button class="artist-album-main" data-action="toggle-album">
+    {{name}}
+    <small>
+      {{#year}}
+        <span class="artist-album-year">({{year}})</span>
+      {{/year}}
+      {{#downloadable}}
+        <i class="artist-album-listen icon">music</i>
+      {{/downloadable}}
+    </small>
+  </button>
+</li>

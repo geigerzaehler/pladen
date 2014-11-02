@@ -20,7 +20,6 @@ define [
   'oneline'
   'bus'
   'bacon'
-  'views/search2'
   'services'
   'player'
   'drag-track'
@@ -38,7 +37,7 @@ define [
   MyView
   TabView
   BagView
-  SearchView
+  {searchView}
   AppLoaderView
   ModalManager
   {AlbumCollectionView, ReleaseCollection}
@@ -48,7 +47,6 @@ define [
   oneline
   Bus
   Bacon
-  {searchView}
   {Provider}
   {player}
   dragTrack

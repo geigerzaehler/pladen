@@ -1,5 +1,5 @@
 declare module "templates" {
-    function search(): string;
+    var search: string;
     function player(): string;
     function trackContextMenu(): string;
 

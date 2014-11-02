@@ -2,7 +2,7 @@
 # object.
 define [
   'dom/template'
-, 'hgn!templates/search'
+, 'text!templates/search.mustache'
 , 'hgn!templates/player'
 , 'hgn!templates/track-context-menu'
 , 'text!templates/drag-track.mustache'

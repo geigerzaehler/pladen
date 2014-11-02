@@ -1,69 +1,64 @@
-import TemplateView = require('./base/template');
+/// <reference path="../../typings/bacon.d.ts" />
 
-class SearchView extends TemplateView {
-    get template()        { return 'search' }
-    get elementTemplate() { return '<div class="search">' }
+import Bacon = require('bacon');
+import View = require('views/base/view2');
+import tpls = require('templates');
 
-    // TODO distinguish between ui bindings and ui
-    get uiBinding(): {[index: string]: string} { return {
-        'search': 'input',
-        'link':   'a',
-        'downloadable': '.search-downloadable',
-    }}
+/**
+ * UI for search input and download toggle
+ *
+ * Also exposes a perma-link to the current search.
+ */
+export class SearchView extends View.View {
+    /**
+     * Value of the search input
+     *
+     * This is piped into `searchFragment`.
+     */
+    search: Bacon.Property<string>;
 
-    get events(): {[index: string]: string} { return {
-        'input  @ui.search': 'onChanged',
-        'change @ui.search': 'onChanged',
-        'click  @ui.downloadable': 'toggleDownloadable',
-    }}
+    /**
+     * Value of the 'download' toggle
+     */
+    downloadable: Bacon.Property<boolean>;
 
-    ui: {
-        link: JQuery;
-        search: JQuery;
-        downloadable: JQuery;
-    }
+    /**
+     * Sets the search string for the search's perma-link.
+     */
+    searchFragment: Bacon.Bus<string>;
 
-    // TODO type bus
-    constructor(public bus:any) {
-        super();
-        bus.client(this);
-        // TODO should be this.app.router.search.enter
-        this.bus.on('route:enter:search', 'set');
-        this.delegateEvents();
-        this.render();
-    }
 
-    set(val) {
-        this.ui.search.val(val);
-        this.onChanged();
-    }
-
-    onChanged() {
-        var pattern:string = this.ui.search.val();
-        if (pattern == '')
-            pattern = null;
-
-        var download:boolean = this.ui.downloadable.hasClass('checked')
-
-        var filter = {
-            pattern: pattern,
-            download: download
-        }
-
-        if (pattern)
-            // TODO use router for this
-            this.ui.link.attr('href', '#/q/' + pattern);
-        else
-            this.ui.link.attr('href', null);
-
-        this.app.search.dispatch(filter);
-    }
-
-    toggleDownloadable() {
-        this.ui.downloadable.toggleClass('checked');
-        this.onChanged();
-    }
-
+    // FIXME backwards compat
+    render() {}
+    show() {}
+    hide() {}
 }
 
-export = SearchView;
+export function searchView() {
+    var view = new SearchView($(tpls.search));
+
+    var searchInput = view.eventStream('input', 'input');
+    var searchChange = view.eventStream('change', 'input');
+
+    view.search =
+        searchInput.merge(searchChange)
+        .map((_) => view.ui('input').val())
+        .toProperty('');
+
+    view.downloadable =
+        view.eventStream('click', '.search-downloadable')
+        .scan(false, (state, _) => !state);
+    view.downloadable.assign(view.ui('.search-downloadable'),
+                             'toggleClass', 'checked');
+
+    view.searchFragment = new Bacon.Bus<string>();
+    view.searchFragment.onValue((s) => {
+        if (s)
+            view.$el.find('a').attr('href', '#/q/' + s);
+        else
+            view.$el.find('a').attr('href', null);
+    });
+    view.searchFragment.push('');
+    view.searchFragment.plug(view.search);
+    return view;
+}

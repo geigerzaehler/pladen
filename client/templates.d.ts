@@ -2,6 +2,7 @@ declare module "templates" {
     function search(): string;
     function player(): string;
     function trackContextMenu(): string;
+
     function dragTrack(): DragTrackTemplate;
     interface DragTrackTemplate {
         el: HTMLElement;
@@ -9,4 +10,3 @@ declare module "templates" {
         artist(s: string);
     }
 }
-

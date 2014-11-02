@@ -1,4 +1,4 @@
-define ['support', 'views/search2']
+define ['support', 'views/search']
 , ({should, eventStreamPromise}, {searchView})->
 
   describe 'search view', ->

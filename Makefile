@@ -40,10 +40,8 @@ docs:
 
 
 .PHONY: clean
-clean:
+clean: client-clean
 	cabal clean
-	rm -rf $(ASSETS)/*
-	rm client/**/*.js
 	rm $(CABAL_DEPS)
 
 
@@ -66,7 +64,14 @@ client-deps:
 	which sass || gem install sass
 
 
+.PHONY: client
 client: styles webapp
+
+.PHONY: client-clean
+client-clean:
+	find client -name '*.js' -exec rm {} \;
+	rm -rf $(ASSETS)/*
+
 
 # TypeScript and CoffeeScript files in the 'client' directory that make
 # up the browser application and have to be compiled to JavaScript.

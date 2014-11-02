@@ -319,12 +319,13 @@ nav a {
   width: 100%;
 }
 
+.artist-track small,
 .artist-album-main small {
   margin-left: 0.5em;
   font-size: font-scale(-1);
 }
 
-.artist-album-listen {
+.artist-release-listen {
   font-size: font-scale(-1);
 
   position: relative;

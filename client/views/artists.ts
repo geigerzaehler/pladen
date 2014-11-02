@@ -135,8 +135,7 @@ class ArtistView extends DataTemplateView {
         })
         var trackList = this.$('.artist-track-list');
         each(this.artist.tracks, (track) => {
-            var li = $('<li>').append(trackView(track))
-            li.appendTo(trackList)
+            trackView(track, this.services).appendTo(trackList);
         });
 
     }
@@ -169,6 +168,21 @@ function albumView(a: Album, p: Services.Provider): JQuery {
  *
  * TODO Make it possible to listen to a track.
  */
-function trackView(t: Track.Track): JQuery {
-    return $('<div>').text(t.title);
+function trackView(t: Track.Track, s: Services.Provider): JQuery {
+    var $el = $(tpls.artistTrack(t));
+
+    if (t.downloadable) {
+        $el.attr('draggable', 'true');
+
+        // TODO Use static typing for provider
+        var dragTrack = s.get('drag-track');
+        $el.on('dragstart', (e:any) => {
+            dragTrack(t, e.originalEvent.dataTransfer)
+            $('html').addClass('drag-track');
+        });
+        $el.on('dragend', (e:any) => {
+            $('html').removeClass('drag-track');
+        });
+    }
+    return $el;
 }

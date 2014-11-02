@@ -87,6 +87,8 @@ define [
         services.provide('player', player)
         services.provide('drag-track', dragTrack)
 
+        @services = services
+
         oneline(document)
 
         @modal = new ModalManager($('body'))

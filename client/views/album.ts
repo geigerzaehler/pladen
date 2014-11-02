@@ -5,12 +5,12 @@ import Promise = w.Promise;
 import cssp = require('css_promise');
 import services = require('services');
 import Provider = services.Provider;
+import Player = services.Player;
+
 import Signal = require('signals');
 import SignalObserver = require('signal_observer');
 import templates = require('templates');
 
-import player = require('../player');
-import Player = player.Player;
 import A = require('models/album');
 import ModalManager = require('./modal_manager');
 import View = require('./base/view');
@@ -82,7 +82,6 @@ export class TrackView extends DataTemplate {
         super(track);
         this.render();
 
-        // TODO Use static typing for provider
         var dragTrack = services.get('drag-track');
         this.$el.on('dragstart', '.release-head', (e:any) => {
             dragTrack(this.track, e.originalEvent.dataTransfer);
@@ -205,7 +204,6 @@ export class AlbumExpansion extends DataTemplate {
         if (this.album.downloadable)
             this.$el.on('click', '.album-track', function() {
                 var track = trackFromId($(this).attr('data-id'));
-                // TODO Use static typing for provider
                 trackContextMenu(track, $(this), p.get('player'));
             })
 
@@ -215,7 +213,7 @@ export class AlbumExpansion extends DataTemplate {
             });
         }
 
-        // TODO Use static typing for provider
+        // TODO remove code duplication
         var dragTrack = p.get('drag-track');
         this.$el.on('dragstart', '.album-track', (e:any) => {
             var dt = e.originalEvent.dataTransfer;

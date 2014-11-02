@@ -2,14 +2,29 @@
 import _ = require('underscore');
 var map = _.map;
 
+import Track = require('models/track');
+
+export interface DragTrack {
+    (t: Track.Attributes, dt: DataTransfer);
+}
+
+export interface Player {
+    play(track: Track.Attributes);
+}
 
 export class Provider {
 
+    provide(name: "player", s: Service<Player>);
+    provide(name: "drag-track", s: Service<DragTrack>);
+    provide(name: string, s: Service<any>);
     provide(name: string, s: Service<any>) {
         this.services[name] = s;
     }
 
-    get(name: string) {
+    get(name: "player"): Player;
+    get(name: "drag-track"): DragTrack;
+    get(name: string): any;
+    get(name: string): any {
         var instance = this.instances[name]
         if (typeof instance == 'undefined')
             instance = this.resolve(name);
@@ -24,7 +39,7 @@ export class Provider {
             throw Error('Circular dependency in requiring ' + name);
 
         this.resolving.push(name);
-        var deps = map(service.deps, (d) => this.get(d));
+        var deps = map(service.deps, (d) => this.get(<any>d));
         var instance = this.instances[name] = service.init(deps);
         this.resolving.pop();
         return instance;

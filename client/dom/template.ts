@@ -5,28 +5,39 @@ function template(src: string) {
     wrapper.innerHTML = src;
     t.el = wrapper.removeChild(wrapper.children[0]);
 
-    var w = document.createTreeWalker(t.el, NodeFilter.SHOW_ELEMENT, null, false);
+    var show = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
+    var w = document.createTreeWalker(t.el, show, null, false);
     var e = t.el
     while (e) {
+        if (e.nodeType == Node.TEXT_NODE) {
+            if (p = placeholder(e.textContent))
+                t[p] = textMutator(e);
+            e = w.nextNode();
+            continue;
+        }
         if (e.hasAttribute('data-slot')) {
             p = e.getAttribute('data-slot');
             t[p] = slotMutator(e);
             e = w.nextSibling();
             continue
         }
-        if (p = textPlaceholder(e))
-            t[p] = textMutator(e);
         
-        attrs = e.attributes;
-        for(var i=attrs.length-1; i>=0; i--) {
-            if (attrs[i].name == 'class')
-                continue;
-            if (p = placeholder(attrs[i].value))
-                t[p] = attrMutator(attrs[i].name, e);
-        }
+        eachAttribute(e, (name, value) => {
+            if (name == 'class')
+                return;
+
+            if (p = onlyPlaceholder(name)) {
+                e.removeAttribute(name);
+                t[p] = attrMutator(p, e);
+                return
+            }
+
+            if (p = placeholder(value))
+                t[p] = attrMutator(name, e);
+        });
 
         e.className.split(' ').forEach(function(c) {
-            if (p = placeholder(c))
+            if (p = onlyPlaceholder(c))
                 t[p] = classMutator(p, e);
         })
         e = w.nextNode();
@@ -36,27 +47,44 @@ function template(src: string) {
 }
 
 
+var placeholderId = '[a-zA-Z][-\\w]*'
 
-var placeholderRE = /^\s*{{(\w+)}}\s*$/;
-function textPlaceholder(e: HTMLElement): string {
-    if (e.children.length != 0)
-        return null;
-    return placeholder(e.textContent)
+var placeholderMatchRE = new RegExp('{{(' + placeholderId + ')}}');
+function placeholder(s: string): string {
+    var match = placeholderMatchRE.exec(s);
+    return match && camelCase(match[1]);
 }
 
-function placeholder(s: string): string {
-    var match = placeholderRE.exec(s);
-    return match && match[1];
+
+var onlyPlaceholderMatchRE = new RegExp('^\\s*{{(' + placeholderId + ')}}\\s*$');
+function onlyPlaceholder(s: string): string {
+    var match = onlyPlaceholderMatchRE.exec(s);
+    return match && camelCase(match[1]);
+}
+
+
+var placeholderRE = new RegExp('{{' + placeholderId + '}}');
+function compileSinglePlaceholder(src: string) {
+    var tokens = src.split(placeholderRE);
+    if (tokens.length > 2)
+        throw Error('template contains more than one placeholder: ' + src);
+    var before = tokens[0];
+    var after = tokens[1]
+    return function evaluate(v: any) {
+        return before + v + after;
+    }
+
 }
 
 
 function textMutator(n: Node) {
-    return function setText(t: string) { n.textContent = t }
+    var render = compileSinglePlaceholder(n.textContent)
+    return function setText(t: string) { n.textContent = render(t) }
 }
 
 
 function attrMutator(name: string, e: HTMLElement) {
-    return function setAttr(v: string) { e.setAttribute(name, v); }
+    return function setAttr(v: string) { e.setAttribute(name, v) }
 }
 
 
@@ -87,4 +115,16 @@ function slotMutator(e: HTMLElement) {
         current.parentElement.replaceChild(r, current);
         current = r;
     }
+}
+
+
+function eachAttribute(e: HTMLElement, iterator: (n: string, v:string) => void) {
+    var attrs = e.attributes;
+    for(var i=attrs.length-1; i>=0; i--)
+        iterator(attrs[i].name, attrs[i].value);
+}
+
+
+function camelCase(s: string) {
+    return s.replace(/[-_]+([a-zA-Z])/g, (_, l) => l.toUpperCase());
 }

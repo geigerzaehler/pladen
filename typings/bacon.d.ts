@@ -1,5 +1,6 @@
 declare module "bacon" {
     function fromEventTarget(t: EventTarget, name: string): Stream<Event>;
+    function constant<T>(val: T): Property<T>;
 
     function update<T>(
         initial: T
@@ -81,5 +82,9 @@ declare module "bacon" {
 
         map<S>(f: (t:T) => S): Property<S>;
         filter(f: (t:T) => boolean): Property<T>;
+
+        skipDuplicates(f?: (x:T, y:T) => boolean): Property<T>;
+
+        and(p: Property<boolean>): Property<boolean>;
     }
 }

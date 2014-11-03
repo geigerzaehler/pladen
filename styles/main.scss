@@ -322,6 +322,11 @@ nav a {
   width: 100%;
 }
 
+.artist-track {
+  &.filtered {
+    display: none;
+  }
+}
 .artist-track small,
 .artist-album-main small {
   margin-left: 0.5em;
@@ -449,7 +454,6 @@ ol.releases > li {
   height: 0;
   overflow: hidden;
   transition: height 0.5s;
-
 }
 
 .album-tracks-wrapper {

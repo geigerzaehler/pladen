@@ -112,6 +112,7 @@ define [
         this.bus.on 'route:enter:search', (val)->
           theSearchView.$el.find('input').val(val)
           theSearchView.searchFragment.push(val)
+          global.search.dispatch({search: val})
 
         @artistSearchView = new BagView(
           theSearchView,

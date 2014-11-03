@@ -194,16 +194,9 @@ class TrackView implements ReleaseView {
 
         if (t.downloadable) {
             this.$el.attr('draggable', 'true');
-
-            // TODO Use static typing for provider
+            this.$el.attr('data-track-id', t.id);
             var dragTrack = s.get('drag-track');
-            this.$el.on('dragstart', (e:any) => {
-                dragTrack(t, e.originalEvent.dataTransfer)
-                $('html').addClass('drag-track');
-            });
-            this.$el.on('dragend', (e:any) => {
-                $('html').removeClass('drag-track');
-            });
+            dragTrack(this.$el, () => t);
         }
     }
 

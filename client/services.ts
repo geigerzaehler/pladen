@@ -1,3 +1,4 @@
+/// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
 import _ = require('underscore');
 var map = _.map;
@@ -5,7 +6,7 @@ var map = _.map;
 import Track = require('models/track');
 
 export interface DragTrack {
-    (t: Track.Attributes, dt: DataTransfer);
+    (e: JQuery, getTrack: (id: number) => Track.Attributes);
 }
 
 export interface Player {

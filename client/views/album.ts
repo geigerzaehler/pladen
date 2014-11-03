@@ -83,19 +83,15 @@ export class TrackView extends DataTemplate {
         this.render();
 
         var dragTrack = services.get('drag-track');
-        this.$el.on('dragstart', '.release-head', (e:any) => {
-            dragTrack(this.track, e.originalEvent.dataTransfer);
-            $('html').addClass('drag-track');
-        });
-        this.$el.on('dragend', '.release-head', (e:any) => {
-            $('html').removeClass('drag-track');
-        });
+        dragTrack(this.$el, () => this.track);
     }
 
     render() {
         super.render();
-        if (this.track.downloadable)
+        if (this.track.downloadable) {
             this.$('.release-head').attr('draggable', 'true');
+            this.$('.release-head').attr('data-track-id', this.track.id);
+        }
     }
 
     helper(model: any) {
@@ -203,7 +199,7 @@ export class AlbumExpansion extends DataTemplate {
 
         if (this.album.downloadable)
             this.$el.on('click', '.album-track', function() {
-                var track = trackFromId($(this).attr('data-id'));
+                var track = trackFromId($(this).attr('data-track-id'));
                 trackContextMenu(track, $(this), p.get('player'));
             })
 
@@ -213,17 +209,8 @@ export class AlbumExpansion extends DataTemplate {
             });
         }
 
-        // TODO remove code duplication
         var dragTrack = p.get('drag-track');
-        this.$el.on('dragstart', '.album-track', (e:any) => {
-            var dt = e.originalEvent.dataTransfer;
-            var track = trackFromId(e.target.attributes['data-id'].value);
-            dragTrack(track, dt)
-            $('html').addClass('drag-track');
-        });
-        this.$el.on('dragend', '.album-track', (e:any) => {
-            $('html').removeClass('drag-track');
-        });
+        dragTrack(this.$el, trackFromId);
     }
 
     toggle(show?: boolean) {

@@ -10,6 +10,8 @@ import Services = require('services');
 import DataTemplateView = require('./base/data_template');
 import View = require('./base/view');
 import query = require('query');
+import filter = require('filter');
+import Filter = filter.Filter;
 import A = require('models/album');
 import Album = A.Album;
 import Track = require('models/track');
@@ -64,19 +66,14 @@ class ArtistsView extends View {
         this.reFilter();
     }
 
-    filter(f: {pattern: string; download: boolean}) {
+    filter(f: filter.Filter) {
         this._filter = f;
-        var pattern = f.pattern;
-        var download = f.download;
-        var matchAlbum = query.album(pattern);
-        var matchTrack = query.track(pattern);
+        var matchAlbum = filter.album(f);
+        var matchTrack = filter.track(f);
 
         each(this.views, (c) => {
-            var albums = c.model.albums;
-            var matchedAlbums = c.model.albums.some((a) => {
-                return matchAlbum(a) && (!download || a.downloadable)
-            });
-            var matchedTracks = !download && some(c.model.tracks, matchTrack)
+            var matchedAlbums = c.model.albums.some(matchAlbum)
+            var matchedTracks = c.model.tracks.some(matchTrack)
             c.$el.toggleClass('filtered', !(matchedAlbums || matchedTracks));
         });
     }
@@ -105,7 +102,7 @@ class ArtistsView extends View {
     }
 
     private views: ArtistView[] = [];
-    private _filter: {pattern: string; download: boolean};
+    private _filter: Filter;
 }
 
 
@@ -137,7 +134,6 @@ class ArtistView extends DataTemplateView {
         each(this.artist.tracks, (track) => {
             trackView(track, this.services).appendTo(trackList);
         });
-
     }
 }
 

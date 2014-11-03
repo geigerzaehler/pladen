@@ -101,8 +101,12 @@ define [
         theSearchView = searchView()
 
         Bacon.combineTemplate(
-          pattern:  theSearchView.search,
-          download: theSearchView.downloadable
+          search:  theSearchView.search,
+          downloadable: theSearchView.downloadable
+        ).map((f) ->
+          if f.downloadable is not true
+            delete f.downloadable
+          return f
         ).assign global.search, 'dispatch'
 
         this.bus.on 'route:enter:search', (val)->

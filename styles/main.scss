@@ -311,6 +311,9 @@ nav a {
 
 .artist-album {
   position: relative;
+  &.filtered {
+    display: none;
+  }
 }
 
 .artist-album-main {

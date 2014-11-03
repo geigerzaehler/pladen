@@ -1,6 +1,7 @@
 import underscore = require('underscore');
 var each = underscore.each;
 var some = underscore.some;
+var map = underscore.map;
 
 import css = require('css_promise');
 import tpls = require('templates');
@@ -9,7 +10,6 @@ import tpls = require('templates');
 import Services = require('services');
 import DataTemplateView = require('./base/data_template');
 import View = require('./base/view');
-import query = require('query');
 import filter = require('filter');
 import Filter = filter.Filter;
 import A = require('models/album');
@@ -68,14 +68,7 @@ class ArtistsView extends View {
 
     filter(f: filter.Filter) {
         this._filter = f;
-        var matchAlbum = filter.album(f);
-        var matchTrack = filter.track(f);
-
-        each(this.views, (c) => {
-            var matchedAlbums = c.model.albums.some(matchAlbum)
-            var matchedTracks = c.model.tracks.some(matchTrack)
-            c.$el.toggleClass('filtered', !(matchedAlbums || matchedTracks));
-        });
+        each(this.views, (a) => a.filter(f));
     }
 
     reFilter() {
@@ -126,36 +119,66 @@ class ArtistView extends DataTemplateView {
 
     render() {
         super.render();
-        var albumList = this.$('.artist-album-list');
+        this._releases = [];
+
+        var albumList = this.$('.artist-album-list').empty();
         each(this.artist.albums, (album) => {
-            albumView(album, this.services).appendTo(albumList);
+            var view = new AlbumView(album, this.services);
+            view.$el.appendTo(albumList);
+            this._releases.push(view)
         })
-        var trackList = this.$('.artist-track-list');
+        var trackList = this.$('.artist-track-list').empty();
         each(this.artist.tracks, (track) => {
-            trackView(track, this.services).appendTo(trackList);
+            var view = new TrackView(track, this.services);
+            view.$el.appendTo(trackList);
+            this._releases.push(view)
         });
     }
+
+    filter(f: Filter) {
+        var matches = map(this._releases, (r) => r.filter(f));
+        this.$el.toggleClass('filtered', !(some(matches)));
+    }
+
+    _releases: ReleaseView[];
 }
 
 
-function albumView(a: Album, p: Services.Provider): JQuery {
-    var $el = $(tpls.artistAlbum(a));
+interface ReleaseView {
+    $el: JQuery;
+    filter(f: Filter): boolean;
+}
 
-    var expansion = new AlbumExpansion(a, p);
-    expansion.$el.appendTo($el);
 
-    var loading = $el.find('.album-loading');
-    expansion.loading.add((loaded) => {
-        css.transitionShow(loading, 'active');
-        loaded.then(() => {
-            css.transitionHide(loading, '-active');
+class AlbumView implements ReleaseView {
+    constructor(a: Album, s: Services.Provider) {
+        this.album = a;
+        this.$el = $(tpls.artistAlbum(a));
+
+        var expansion = new AlbumExpansion(a, s);
+        expansion.$el.appendTo(this.$el);
+
+        var loading = this.$el.find('.album-loading');
+        expansion.loading.add((loaded) => {
+            css.transitionShow(loading, 'active');
+            loaded.then(() => {
+                css.transitionHide(loading, '-active');
+            })
         })
-    })
 
-    $el.on('click', 'button[data-action=toggle-album]',
-           () => expansion.toggle());
+        this.$el.on('click', 'button[data-action=toggle-album]',
+                    () => expansion.toggle());
+    }
 
-    return $el;
+    $el: JQuery;
+
+    filter(f: Filter): boolean {
+        var match = filter.album(f)(this.album);
+        this.$el.toggleClass('filtered', !match)
+        return match;
+    }
+
+    private album: Album
 }
 
 
@@ -164,21 +187,32 @@ function albumView(a: Album, p: Services.Provider): JQuery {
  *
  * TODO Make it possible to listen to a track.
  */
-function trackView(t: Track.Track, s: Services.Provider): JQuery {
-    var $el = $(tpls.artistTrack(t));
+class TrackView implements ReleaseView {
+    constructor(t: Track.Track, s: Services.Provider) {
+        this.track = t;
+        this.$el = $(tpls.artistTrack(t));
 
-    if (t.downloadable) {
-        $el.attr('draggable', 'true');
+        if (t.downloadable) {
+            this.$el.attr('draggable', 'true');
 
-        // TODO Use static typing for provider
-        var dragTrack = s.get('drag-track');
-        $el.on('dragstart', (e:any) => {
-            dragTrack(t, e.originalEvent.dataTransfer)
-            $('html').addClass('drag-track');
-        });
-        $el.on('dragend', (e:any) => {
-            $('html').removeClass('drag-track');
-        });
+            // TODO Use static typing for provider
+            var dragTrack = s.get('drag-track');
+            this.$el.on('dragstart', (e:any) => {
+                dragTrack(t, e.originalEvent.dataTransfer)
+                $('html').addClass('drag-track');
+            });
+            this.$el.on('dragend', (e:any) => {
+                $('html').removeClass('drag-track');
+            });
+        }
     }
-    return $el;
+
+    $el: JQuery;
+    filter(f: Filter): boolean {
+        var match = filter.track(f)(this.track);
+        this.$el.toggleClass('filtered', !match)
+        return match;
+    }
+
+    private track: Track.Track;
 }

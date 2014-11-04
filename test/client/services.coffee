@@ -8,16 +8,25 @@ define ['services', 'support']
 
     Given 'a provider', -> new Provider
 
+    # Simple service
     When -> @provider.provide('a', service -> 'no deps')
     When 'service', -> @provider.get('a')
     Then 'service', should.equal('no deps')
 
+    # Dependent service
     When -> @provider.provide('a', service ['b', 'c'], (b, c)-> [b,c])
     When -> @provider.provide('b', service -> 'b')
     When -> @provider.provide('c', service -> 'c')
     When 'service', -> @provider.get('a')
     Then 'service', should.deep.equal(['b', 'c'])
 
+    # Named service
+    When -> @provider.provide(service 'a', ['b'], (b)-> b)
+    When -> @provider.provide(service 'b', -> 'b')
+    When 'service', -> @provider.get('a')
+    Then 'service', should.equal('b')
+
+    # Initialize service once
     When 'init', -> sinon.spy(-> 'a')
     When -> @provider.provide('a', service @init)
     When ->

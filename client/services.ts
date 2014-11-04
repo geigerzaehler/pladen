@@ -20,12 +20,16 @@ export interface TrackContextMenu {
 
 export class Provider {
 
-    provide(name: "track-context-menu", s: Service<TrackContextMenu>);
-    provide(name: "player", s: Service<Player>);
-    provide(name: "drag-track", s: Service<DragTrack>);
     provide(name: string, s: Service<any>);
-    provide(name: string, s: Service<any>) {
-        this.services[name] = s;
+    provide(s: Service<any>);
+    provide(name, service?) {
+        if (typeof name != 'string') {
+            service = name
+            name = service.name;
+        }
+        if (!name)
+            throw Error('Provided service is missing a name');
+        this.services[name] = service;
     }
 
     get(name: "track-context-menu"): TrackContextMenu;
@@ -59,23 +63,33 @@ export class Provider {
 }
 
 
-export function service<T>(init: (...any) => T): Service<T>;
+export function service<T>(name: string, init: (...any) => T): Service<T>;
 export function service<T>(deps: string[], init: (...any) => T): Service<T>;
-export function service<T>(deps, init?) {
-    if (typeof init == 'undefined') {
-        init = deps;
+export function service<T>(name: string, deps: string[], init: (...any) => T): Service<T>;
+export function service<T>(...args) {
+    var name;
+    var init = args.pop();
+    if (typeof init != 'function')
+        throw Error('Service must be created with an initializer function');
+    var deps = args.pop();
+    if (Array.isArray(deps)) {
+        name = args.pop();
+    } else if (typeof deps == 'string') {
+        name = deps;
         deps = [];
     }
-    return new Service<T>(deps, init)
+    return new Service<T>(name, deps, init)
 }
 
 
 export class Service<T> {
-    constructor(deps: string[], init: (...any) => T) {
+    constructor(name: string, deps: string[], init: (...any) => T) {
+        this.name = name;
         this.deps = deps;
         this._init = init;
     }
 
+    name: string;
     deps: string[];
 
     init(args: any[]): T {

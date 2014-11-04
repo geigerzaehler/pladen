@@ -2,6 +2,7 @@
 /// <reference path="../typings/underscore/underscore.d.ts" />
 import _ = require('underscore');
 var map = _.map;
+var each = _.each;
 
 import Track = require('models/track');
 
@@ -19,6 +20,8 @@ export interface TrackContextMenu {
 
 
 export class Provider {
+
+    static globalServices: {[name: string]: Service<any>[]} = {};
 
     provide(name: string, s: Service<any>);
     provide(s: Service<any>);
@@ -41,6 +44,16 @@ export class Provider {
         if (typeof instance == 'undefined')
             instance = this.resolve(name);
         return instance;
+    }
+
+    useGlobalServices() {
+        each(Provider.globalServices, (services, name) => {
+            if (this.services[name])
+                return;
+            if (services.length > 1)
+                throw Error('Global service "' + name + '" is not unique');
+            this.services[name] = services[0];
+        })
     }
 
     private resolve(name: string) {
@@ -78,7 +91,12 @@ export function service<T>(...args) {
         name = deps;
         deps = [];
     }
-    return new Service<T>(name, deps, init)
+    var service = new Service<T>(name, deps, init);
+    if (service.name) {
+        Provider.globalServices[name] = Provider.globalServices[name] || [];
+        Provider.globalServices[name].push(service);
+    }
+    return service;
 }
 
 

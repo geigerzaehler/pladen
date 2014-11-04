@@ -7,6 +7,7 @@ define ['services', 'support']
   describe 'services', ->
 
     Given 'a provider', -> new Provider
+    Given -> Provider.globalServices = {}
 
     # Simple service
     When -> @provider.provide('a', service -> 'no deps')
@@ -25,6 +26,12 @@ define ['services', 'support']
     When -> @provider.provide(service 'b', -> 'b')
     When 'service', -> @provider.get('a')
     Then 'service', should.equal('b')
+
+    # Global services
+    When -> service 'a', -> 'this is a'
+    When -> @provider.useGlobalServices()
+    When 'service', -> @provider.get('a')
+    Then 'service', should.equal('this is a')
 
     # Initialize service once
     When 'init', -> sinon.spy(-> 'a')

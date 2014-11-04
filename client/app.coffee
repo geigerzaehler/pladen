@@ -16,6 +16,7 @@ define [
   'views/album'
   'views/artists'
   'views/player2'
+  'track-context-menu'
   'global'
   'oneline'
   'bus'
@@ -43,6 +44,7 @@ define [
   {AlbumCollectionView, ReleaseCollection}
   ArtistsView
   {Player}
+  trackContextMenu
   {instance: global}
   oneline
   Bus
@@ -86,6 +88,7 @@ define [
         services = new Provider
         services.provide('player', player)
         services.provide('drag-track', dragTrack)
+        services.provide('track-context-menu', trackContextMenu)
 
         @services = services
 

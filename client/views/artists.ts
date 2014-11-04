@@ -197,10 +197,13 @@ class TrackView implements ReleaseView {
             this.$el.attr('data-track-id', t.id);
             var dragTrack = s.get('drag-track');
             dragTrack(this.$el, () => t);
+            var addTrackMenu = s.get('track-context-menu');
+            addTrackMenu(this.$el, () => t);
         }
     }
 
     $el: JQuery;
+
     filter(f: Filter): boolean {
         var match = filter.track(f)(this.track);
         this.$el.toggleClass('filtered', !match)

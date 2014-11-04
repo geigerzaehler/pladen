@@ -197,11 +197,10 @@ export class AlbumExpansion extends DataTemplate {
             this.render();
         })
 
-        if (this.album.downloadable)
-            this.$el.on('click', '.album-track', function() {
-                var track = trackFromId($(this).attr('data-track-id'));
-                trackContextMenu(track, $(this), p.get('player'));
-            })
+        if (this.album.downloadable) {
+            var trackMenu = p.get('track-context-menu')
+            trackMenu(this.$el, trackFromId)
+        }
 
         function trackFromId(id: any) {
             return _.find(album.tracks, (track) => {
@@ -275,18 +274,4 @@ export class AlbumExpansion extends DataTemplate {
     }
 
     private shown = false;
-}
-
-
-function trackContextMenu(track: Track.Attributes, $parent: JQuery, player: Player) {
-    var $el = $(templates.trackContextMenu());
-    $el.on('click', ['data-action=play'], function() {
-        player.play(track);
-    })
-    $parent.after($el);
-    setTimeout(function() {
-        $(document).one('click', function() {
-            $el.remove();
-        })
-    }, 0);
 }

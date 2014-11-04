@@ -2,10 +2,10 @@
 $tcm-background: white;
 
 .track-context-menu {
+  font-size: font-scale(-1);
   position: absolute;
   margin-top: 12px;
 
-  // font-size: font-scale(1);
   &:before {
     position: absolute;
     top: -12px;

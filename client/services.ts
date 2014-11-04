@@ -13,8 +13,14 @@ export interface Player {
     play(track: Track.Attributes);
 }
 
+export interface TrackContextMenu {
+    (el: JQuery, getTrack: (id: number) => Track.Attributes);
+}
+
+
 export class Provider {
 
+    provide(name: "track-context-menu", s: Service<TrackContextMenu>);
     provide(name: "player", s: Service<Player>);
     provide(name: "drag-track", s: Service<DragTrack>);
     provide(name: string, s: Service<any>);
@@ -22,6 +28,7 @@ export class Provider {
         this.services[name] = s;
     }
 
+    get(name: "track-context-menu"): TrackContextMenu;
     get(name: "player"): Player;
     get(name: "drag-track"): DragTrack;
     get(name: string): any;
@@ -40,7 +47,7 @@ export class Provider {
             throw Error('Circular dependency in requiring ' + name);
 
         this.resolving.push(name);
-        var deps = map(service.deps, (d) => this.get(<any>d));
+        var deps = map(service.deps, (d) => this.get(d));
         var instance = this.instances[name] = service.init(deps);
         this.resolving.pop();
         return instance;
@@ -52,8 +59,8 @@ export class Provider {
 }
 
 
-export function service<T>(init: (...any) => T)
-export function service<T>(deps: string[], init: (...any) => T)
+export function service<T>(init: (...any) => T): Service<T>;
+export function service<T>(deps: string[], init: (...any) => T): Service<T>;
 export function service<T>(deps, init?) {
     if (typeof init == 'undefined') {
         init = deps;

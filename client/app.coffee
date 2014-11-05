@@ -123,12 +123,17 @@ define [
           theSearchView,
           new ArtistsView(@artists, services)
         )
+        @artistSearchView.render()
+
         @recentReleasesView = new ReleaseCollection(@recentReleases, services)
+        @recentReleasesView.render()
 
 
-        @tabs = new ContentView
-          artists: @artistSearchView
-          recent:  @recentReleasesView
+        @tabs = new TabView
+          artists: @artistSearchView.el
+          recent:  @recentReleasesView.el
+        @tabs.$el.addClass('content')
+
         $('.container').append(@tabs.el, @player.el)
 
         @bus.on 'route:enter:index', => @tabs.select('artists').done()

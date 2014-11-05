@@ -85,6 +85,7 @@ export interface DragDropStream {
 }
 
 
+// TODO remove this in favor of 'dom/signals'
 export function voidSignal($el: JQuery, event: string, selector?: string) {
     return new Signal<void>($el, event, () => {}, selector);
 }

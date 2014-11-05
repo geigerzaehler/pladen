@@ -9,6 +9,7 @@ define [
 , 'hgn!templates/track-release'
 , 'hgn!templates/track-context-menu'
 , 'text!templates/drag-track.mustache'
+, 'hgn!templates/dialogs/message'
 ], (
   domTemplate
   search
@@ -18,7 +19,10 @@ define [
   trackRelease
   trackContextMenu
   dragTrackSrc
+  messageDialog_
 )->
   dragTrack = -> domTemplate(dragTrackSrc)
-  return {search, artistAlbum, artistTrack, trackRelease
-    player, trackContextMenu, dragTrack}
+  messageDialog = (msg)-> messageDialog_ {msg}
+
+  {search, artistAlbum, artistTrack, trackRelease
+    player, trackContextMenu, dragTrack, messageDialog}

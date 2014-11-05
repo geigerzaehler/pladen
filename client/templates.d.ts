@@ -33,4 +33,6 @@ declare module "templates" {
         title(s: string);
         artist(s: string);
     }
+
+    function messageDialog(msg: string): string;
 }

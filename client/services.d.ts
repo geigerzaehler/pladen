@@ -1,5 +1,8 @@
+/// <reference path="../typings/jquery/jquery.d.ts" />
+/// <reference path="../typings/signals.d.ts" />
 declare module "services" {
     import Track = require('models/track');
+    import Signal = require('signals');
 
     export interface DragTrack {
         (e: JQuery, getTrack: (id: number) => Track.Attributes);
@@ -11,6 +14,10 @@ declare module "services" {
 
     export interface TrackContextMenu {
         (el: JQuery, getTrack: (id: number) => Track.Attributes);
+    }
+
+    export interface Dialogs {
+        message(m: string);
     }
 
     export var globalProvider: Provider;

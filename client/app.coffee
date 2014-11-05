@@ -85,12 +85,10 @@ define [
 
     _start: ->
       w.try =>
-        services = new Provider
+        @services = services = new Provider
         services.provide('player', player)
         services.provide('drag-track', dragTrack)
         services.provide('track-context-menu', trackContextMenu)
-
-        @services = services
 
         oneline(document)
 
@@ -99,8 +97,6 @@ define [
         global.openNoAlbumDownload = @modal.openNoAlbumDownload.bind(@modal)
         global.openMessageDialog = @modal.openMessage.bind(@modal)
         MyView::app = global
-
-
 
         
         theSearchView = searchView()
@@ -112,18 +108,17 @@ define [
           theSearchView.searchFragment.push(val)
           global.search.dispatch({search: val})
 
-        @artistSearchView = new BagView(
-          theSearchView,
-          new ArtistsView(@artists, services)
-        )
-        @artistSearchView.render()
+        @artistView = new ArtistsView(@artists, services)
+        @artistSearchView = $('<div>')
+          .append(theSearchView.$el)
+          .append(@artistView.$el)
 
         @recentReleasesView = new ReleaseCollection(@recentReleases, services)
         @recentReleasesView.render()
 
 
         @tabs = new TabView
-          artists: @artistSearchView.el
+          artists: @artistSearchView
           recent:  @recentReleasesView.el
         @tabs.$el.addClass('content').appendTo('.container')
 

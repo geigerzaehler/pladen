@@ -3,7 +3,8 @@ import s = require('services');
 import Track = require('models/track');
 
 export = dragTrack;
-var dragTrack: s.Service<s.DragTrack> = s.service(function() {
+var dragTrack: s.Service<s.DragTrack>
+= s.service('drag-track', function() {
     var tpl = templates.dragTrack()
     var $tpl = $(tpl.el);
     $tpl.appendTo('.hidden-box');

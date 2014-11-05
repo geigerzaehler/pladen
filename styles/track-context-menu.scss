@@ -1,4 +1,3 @@
-// $tcm-background: hsl(0, 0%, 10%);
 $tcm-background: white;
 
 .track-context-menu {
@@ -35,7 +34,6 @@ $tcm-background: white;
   transition: background-color 0.2s;
   background: $tcm-background;
   @include active {
-    background: hsl(0, 0%, 30%);
     background: $teal;
     color: white;
   }

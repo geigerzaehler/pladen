@@ -2,7 +2,9 @@
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
 import Bacon = require('bacon')
+import Stream = Bacon.Stream;
 import _ = require('underscore');
+import $ = require('jquery');
 var find = _.find;
 var each = _.each;
 
@@ -11,6 +13,14 @@ var each = _.each;
  * This module includes various utitilies the simplify interaction with
  * the DOM.
  */
+
+
+export function
+eventStream($el: JQuery, event: string, selector?: string): Stream<JQueryEventObject> {
+    // TODO add the function to bacon.d.ts
+    var B: any = Bacon;
+    return B.$.asEventStream.call($el, event, selector);
+}
 
 
 /**
@@ -79,6 +89,13 @@ export function voidSignal($el: JQuery, event: string, selector?: string) {
     return new Signal<void>($el, event, () => {}, selector);
 }
 
+
+/**
+ * Create a signal that is dispatched when event is fired on the JQuery
+ * element.
+ *
+ * Event handlers are only registered when the signal has listeners.
+ */
 export class Signal<T> {
     constructor($el: JQuery, event: string,
                 selector?: string, transformer?: (e: JQueryEventObject) => T)

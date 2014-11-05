@@ -41,4 +41,36 @@ The code of this project consists of three parts.
 To get a deeper understanding of how the project is structured and
 built, check out the Makefile.
 
+
+### Client
+
+This is an overview of all the client files and what they do.
+
+* `services` Provides a service constructor and service provider.
+  Implementation of the depency injector pattern.
+
+* `drag-track` (service) Make DOM elements that represent tracks
+  draggable so that they can interact with the rest of the application.
+
+* `track-context-menu` (service) Provide context menu to play tracks.
+
+* `templates` Exposes a collection of functions that generate strings
+  or DOM elements from data.
+
+* `dom` Provides various abstractions on top of DOM Elements. Includes
+  *DOM signals* (instead of events) and FRP *drag and drop stream*.
+
+* `filter` Create functions that test if a model satisfier a given
+  filter.
+
+The following modules should be replaced
+
+* `global`
+* `observer`
+* `emitter`
+* `emitter_observer`
+* `bus`
+* `router`
+
+
 [beets]: https://github.com/sampsyo/beets

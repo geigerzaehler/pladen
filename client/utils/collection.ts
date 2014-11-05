@@ -1,25 +1,48 @@
-/// <reference path="../../typings/all.d.ts" />
-
+/// <reference path="../../typings/jquery/jquery.d.ts" />
+/// <reference path="../../typings/underscore/underscore.d.ts" />
 import _ = require('underscore');
 
+/**
+ * Inserting items into an array with indices.
+ */
 
+
+export interface Index<Item> {
+    index: number;
+    item:  Item;
+}
+
+
+/**
+ * Insert 'items' into 'target' so that 'target' will still be ordered
+ * by 'comparator'.
+ *
+ * Returns a list of indices that can be used to reply the insertion.
+ *
+ *    var copy = target.splice();
+ *    var indices = insert(target, items, comparator);
+ *    insertIndices(copy, indices);
+ *    assertItemsEqual(copy, target);
+ */
 export function insert<Item>(
-        into: Item[],
+        target: Item[],
         items: Item[],
         comparator: (i: Item) => any
     ): Index<Item>[] {
-    return _.map(items, (item) => {
-        var i = _.sortedIndex(into, item, comparator);
-        into.splice(i, 0, item);
+    return items.map(function(item) {
+        var i = _.sortedIndex(target, item, comparator);
+        target.splice(i, 0, item);
         return { index: i, item:  item };
     });
 }
+
 
 export function insertIndices<Item>(into: Item[], is: Index<Item>[]) {
     _.each(is, (i) => {
         into.splice(i.index, 0, i.item);
     });
 }
+
 
 export function insertDomIndices(parent: JQuery, is: Index<JQuery>[]) {
     _.each(is, (i) => {
@@ -31,10 +54,6 @@ export function insertDomIndices(parent: JQuery, is: Index<JQuery>[]) {
     });
 }
 
-export interface Index<Item> {
-    index: number;
-    item:  Item;
-}
 
 export function mapIndices<T,S>(is: Index<T>[], it: (t: T) => S): Index<S>[] {
     return _.map(is, (i) => {

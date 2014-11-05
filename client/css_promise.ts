@@ -1,17 +1,24 @@
-/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../typings/jquery/jquery.d.ts" />
+/// <reference path="../typings/when/when.d.ts" />
+/// <reference path="../typings/underscore/underscore.d.ts" />
 
 /**
  * This module contains Promise interfaces for DOM transitions and
  * animations.
  *
- * It also includes functions that trigger special transitions.
+ * @function {transition,animation}End
+ *     Promise-based interface for the respective events
+ *
+ * @function transition{From,To}AutoHeight
+ *     Sliding elements open and closed
+ *
+ * @function transition{Show,Hide}
+ *     Use transitions together with the non-animatable 'display'
+ *     property.
  */
 import underscore = require('underscore');
 import when = require('when');
-import Promise = when.Promise;
 import promise = when.promise;
-
-var map = underscore.map;
 var max = underscore.max;
 
 var animationendEvent =
@@ -37,7 +44,7 @@ export function transitionEnd(el: JQuery, property = 'all', timeout = false) {
             .replace(/ms/g, '')
             .replace(/s/, '000')
             .split(/ *, */);
-        var duration = max(map(durations, parseInt));
+        var duration = max(durations.map(parseInt));
         p = p.timeout(duration)
     }
     return p;

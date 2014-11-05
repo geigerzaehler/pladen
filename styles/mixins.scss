@@ -44,10 +44,12 @@
 
   color: white;
   background: $teal;
+  border-color: $teal-shade;
 
   padding-top:    3px;
   padding-bottom: 2px;
-  border-bottom: 3px solid $teal-shade;
+  border-bottom-width: 3px;
+  border-bottom-style: solid;
 
   text-decoration: none;
   font-weight: bold;
@@ -57,7 +59,7 @@
 
   outline: 0;
   &:focus, &:active {
-    border-bottom: 2px solid $teal-shade;
+    border-width: 2px;
     padding-top: 4px;
     box-shadow: -2px 0px 2px -1px rgba(black, 0.1)  inset,
                  0px 1px 1px  0px rgba(black, 0.05) inset,

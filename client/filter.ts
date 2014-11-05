@@ -9,6 +9,16 @@ import Track = T.Attributes;
 
 var map = _.map;
 
+/**
+ * Create functions that match albums or tracks.
+ *
+ * The 'album' and 'track' functions take 'Filter' objects and return
+ * 'Test' functions. If the test function is called on a track or
+ * album object, it returns 'true' if the object matches the filter and
+ * 'false' otherwise.
+ *
+ * TODO move this into 'models' module.
+ */
 
 export interface Filter {
     search?: string;

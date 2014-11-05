@@ -26,9 +26,11 @@ declare module "services" {
     }
 
     export function
-    service<T>(name: string, init: (...any) => T): Service<T>;
+    service<T>(init: (...any) => T): Service<T>;
     export function
     service<T>(deps: string[], init: (...any) => T): Service<T>;
+    export function
+    service<T>(name: string, init: (...any) => T): Service<T>;
     export function
     service<T>(name: string, deps: string[], init: (...any) => T): Service<T>;
 

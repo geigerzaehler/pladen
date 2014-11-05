@@ -475,6 +475,9 @@ ol.releases > li {
 
 .album-tracks ol {
   padding: 0.1em 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .album-track {

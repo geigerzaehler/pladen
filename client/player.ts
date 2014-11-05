@@ -7,7 +7,7 @@ import Service = services.Service;
 import Track = require('models/track');
 
 
-export var player: Service<services.Player> = service(() => new Player);
+export var player: Service<services.Player> = service('player', () => new Player);
 export class Player implements services.Player {
 
     playing: Bacon.Property<boolean>;

@@ -11,11 +11,11 @@ define [
   'views/base/tab'
   'views/base/bag'
   'views/search'
-  'views/app_loader'
+  'views/splash_screen'
   'views/modal_manager'
   'views/album'
   'views/artists'
-  'views/player2'
+  'views/player'
   'track-context-menu'
   'global'
   'oneline'
@@ -39,11 +39,11 @@ define [
   TabView
   BagView
   {searchView}
-  AppLoaderView
+  splashScreen
   ModalManager
   {AlbumCollectionView, ReleaseCollection}
   ArtistsView
-  {Player: PlayerView}
+  PlayerView
   trackContextMenu
   {instance: global}
   oneline
@@ -57,13 +57,16 @@ define [
 
   fastclick.attach(document.body)
 
-  class ContentView extends TabView
-    elementTemplate: '<ol class=content>'
-  Object.defineProperty ContentView.prototype, 'elementTemplate',
-    value: '<ol class=content>'
-
   class App
-    constructor: ->
+    start: ->
+      splashScreen(w.try => @init()).done()
+
+    init: ->
+      @services = new Provider
+      @services.provide(player)
+      @services.provide(dragTrack)
+      @services.provide(trackContextMenu)
+
       @bus = @vent = new Bus
 
       @tracks = new Track.Repository
@@ -73,63 +76,46 @@ define [
       @recentAlbums = @albums.recent()
       @recentReleases = new Release.Recent(@tracks, @albums)
 
+      oneline(document)
 
-    start: ->
-      appLoader = new AppLoaderView($('.app-loader'))
-      @_start().done(
-        => setTimeout (=> appLoader.finish()), 10
-      , (e)=>
-        appLoader.fail()
-        throw e
-      )
-
-    _start: ->
-      w.try =>
-        @services = services = new Provider
-        services.provide('player', player)
-        services.provide('drag-track', dragTrack)
-        services.provide('track-context-menu', trackContextMenu)
-
-        oneline(document)
-
-        @modal = new ModalManager($('body'))
-        # TODO Use services
-        global.openNoAlbumDownload = @modal.openNoAlbumDownload.bind(@modal)
-        global.openMessageDialog = @modal.openMessage.bind(@modal)
-        MyView::app = global
-
-        
-        theSearchView = searchView()
-        theSearchView.filter.assign global.search, 'dispatch'
+      @modal = new ModalManager($('body'))
+      # TODO Use services
+      global.openNoAlbumDownload = @modal.openNoAlbumDownload.bind(@modal)
+      global.openMessageDialog = @modal.openMessage.bind(@modal)
+      MyView::app = global
 
 
-        this.bus.on 'route:enter:search', (val)->
-          theSearchView.$el.find('input').val(val)
-          theSearchView.searchFragment.push(val)
-          global.search.dispatch({search: val})
-
-        @artistView = new ArtistsView(@artists, services)
-        @artistSearchView = $('<div>')
-          .append(theSearchView.$el)
-          .append(@artistView.$el)
-
-        @recentReleasesView = new ReleaseCollection(@recentReleases, services)
-        @recentReleasesView.render()
+      theSearchView = searchView()
+      theSearchView.filter.assign global.search, 'dispatch'
 
 
-        @tabs = new TabView
-          artists: @artistSearchView
-          recent:  @recentReleasesView.el
-        @tabs.$el.addClass('content').appendTo('.container')
+      this.bus.on 'route:enter:search', (val)->
+        theSearchView.$el.find('input').val(val)
+        theSearchView.searchFragment.push(val)
+        global.search.dispatch({search: val})
 
-        @player = new PlayerView(services.get('player'))
-        @player.$el.appendTo('.container')
+      @artistView = new ArtistsView(@artists, @services)
+      @artistSearchView = $('<div>')
+        .append(theSearchView.$el)
+        .append(@artistView.$el)
 
-        @bus.on 'route:enter:index', => @tabs.select('artists').done()
-        @bus.on 'route:enter:new',   => @tabs.select('recent').done()
+      @recentReleasesView = new ReleaseCollection(@recentReleases, @services)
+      @recentReleasesView.render()
 
-        router(@vent)
-      .then => w.all [
+
+      @tabs = new TabView
+        artists: @artistSearchView
+        recent:  @recentReleasesView.el
+      @tabs.$el.addClass('content').appendTo('.container')
+
+      @player = new PlayerView(@services.player)
+      @player.$el.appendTo('.container')
+
+      @bus.on 'route:enter:index', => @tabs.select('artists').done()
+      @bus.on 'route:enter:new',   => @tabs.select('recent').done()
+
+      router(@vent)
+      w.all [
         @albums.fetchAll()
         @singletonTracks.fetchAll()
       ]

@@ -3,7 +3,8 @@ import templates = require('templates');
 import Track = require('models/track');
 
 export = trackContextMenu;
-var trackContextMenu = s.service<s.TrackContextMenu>(['player'], init)
+var trackContextMenu = s.service<s.TrackContextMenu>
+    ('track-context-menu', ['player'], init);
 
 function init(player: s.Player) {
     // TODO use service instead of getTrack

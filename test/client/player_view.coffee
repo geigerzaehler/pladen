@@ -1,5 +1,5 @@
-define ['views/player2', 'player', 'support', 'support/audio', 'support/events']
-, ({Player}, {player}, {should, promiseCall}, Audio, {DragEvent})->
+define ['views/player', 'player', 'support', 'support/audio', 'support/events']
+, (Player, {player}, {should, promiseCall}, Audio, {DragEvent})->
 
   describe 'player', ->
 

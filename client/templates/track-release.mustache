@@ -1,0 +1,19 @@
+<div class="release-head"
+     data-track-id="{{id}}"
+     draggable="{{downloadable}}">
+  <div class="album-main">
+    <div class="album-name">{{title}}</div>
+    <div class="album-additional">
+      <span class="album-artist">{{artist}}</span>
+      {{#year}}
+        <span class="album-year">({{year}})</span>
+      {{/year}}
+      {{#downloadable}}
+        <i class="album-listen icon">music</i>
+      {{/downloadable}}
+    </div>
+  </div>
+  {{#added}}
+    <div class="album-added" title="{{addedIso}}">{{added}}<br>hinzugefügt</div>
+  {{/added}}
+</div>

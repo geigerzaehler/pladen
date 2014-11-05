@@ -11,6 +11,9 @@ import Signal = require('signals');
 import SignalObserver = require('signal_observer');
 import templates = require('templates');
 
+import v2 = require('views/base/view2');
+import View2 = v2.View;
+
 import A = require('models/album');
 import ModalManager = require('./modal_manager');
 import View = require('./base/view');
@@ -22,6 +25,7 @@ import c = require('utils/collection');
 import R = require('models/release');
 import B = require('models/base');
 
+interface MyView { $el: JQuery; }
 
 export class ReleaseCollection extends View {
     get elementTemplate()
@@ -58,47 +62,30 @@ export class ReleaseCollection extends View {
         c.insertDomIndices(this.$el, els);
     }
 
-    private createItemView(r: R.Release): DataTemplate {
+    private createItemView(r: R.Release): MyView {
         if (r.album)
             return new AlbumView(r.album, this.provider);
         else
             return new TrackView(r.track, this.provider)
     }
 
-    private views: DataTemplate[] = [];
+    private views: MyView[] = [];
     private collectionObserver = new SignalObserver(this);
     private provider: Provider;
 }
 
 
-// TODO use new view
-export class TrackView extends DataTemplate {
-    get elementTemplate()
-    { return '<li class=track>' }
+class TrackView extends View2 {
+    constructor(track: Track.Track, services: Provider) {
+        var attr: templates.TrackReleaseData = <any>Track.pickAttributes(track);
+        attr.added = track.added.fromNow(),
+        attr.addedIso = track.added.format('LLL')
+        super($('<li class=track>').html(templates.trackRelease(attr)));
 
-    get template()
-    { return 'track-release' }
-
-    constructor(private track: Track.Track, services: Provider) {
-        super(track);
-        this.render();
-        services.dragTrack(this.$el, () => this.track);
-    }
-
-    render() {
-        super.render();
-        if (this.track.downloadable) {
-            this.$('.release-head').attr('draggable', 'true');
-            this.$('.release-head').attr('data-track-id', this.track.id);
+        if (track.downloadable) {
+            services.dragTrack(this.$el, () => track);
+            services.trackContextMenu(this.$el, () => track);
         }
-    }
-
-    helper(model: any) {
-        var added = model.added;
-        return {
-            added:     added.fromNow(),
-            addedIso:  added.format('LLL')
-        };
     }
 }
 

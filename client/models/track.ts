@@ -188,15 +188,15 @@ export interface Comparator {
 }
 
 export interface Attributes {
-    title?:   string;
+    title:    string;
     no?:      number;
-    artist?:  string;
+    artist:   string;
     length:   number;
     added:    Moment;
     downloadable: boolean;
 
     id:       number;
-    albumid:  number;
+    albumid?: number;
 }
 
 export function pickAttributes(obj: {}): Attributes {

@@ -16,6 +16,17 @@ declare module "templates" {
         downloadable: boolean
     }
 
+    function trackRelease(d: TrackReleaseData): string;
+    interface TrackReleaseData {
+        id: number;
+        title: string;
+        artist: string;
+        year?: string;
+        downloadable: boolean
+        added?: string;
+        addedIso?: string;
+    }
+
     function dragTrack(): DragTrackTemplate;
     interface DragTrackTemplate {
         el: HTMLElement;

@@ -185,8 +185,6 @@ class AlbumView implements ReleaseView {
 
 /**
  * Return an element that displays the track title
- *
- * TODO Make it possible to listen to a track.
  */
 class TrackView implements ReleaseView {
     constructor(t: Track.Track, s: Provider) {

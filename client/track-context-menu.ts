@@ -7,6 +7,7 @@ var trackContextMenu = s.service<s.TrackContextMenu>(['player'], init)
 
 function init(player: s.Player) {
     // TODO use service instead of getTrack
+    var parent = document.body;
     return function addTrackContextMenu($target: JQuery, getTrack) {
         $target.on('click.track-context-menu', makeMenu);
 
@@ -18,22 +19,23 @@ function init(player: s.Player) {
             if (!id) return;
 
             e.preventDefault()
-            var track = getTrack(parseInt(id));
-            var rect = target.getBoundingClientRect()
 
             var $el = $(templates.trackContextMenu());
-            $el.on('click', ['data-action=play'], function() {
-                player.play(track);
-            })
-            $el.appendTo('body');
+            $el.appendTo(parent);
+
+            var play = player.play.bind(player, getTrack(parseInt(id)));
+            $el.on('click', '[data-action=play]', play);
+
+            var targetRect = target.getBoundingClientRect();
+            var parentRect = parent.getBoundingClientRect();
             $el.css({
                 position: 'absolute',
-                left: rect.left,
-                top:  rect.bottom
-            })
+                left: targetRect.left - parentRect.left,
+                top:  targetRect.bottom - parentRect.top
+            });
 
             setTimeout(function() {
-                $(document).one('click', function() {
+                $(parent).one('click', function() {
                     $el.remove();
                 })
             }, 0);

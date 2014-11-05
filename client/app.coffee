@@ -112,6 +112,8 @@ define [
           return f
         ).assign global.search, 'dispatch'
 
+        @player = new Player(services.get('player'))
+
         this.bus.on 'route:enter:search', (val)->
           theSearchView.$el.find('input').val(val)
           theSearchView.searchFragment.push(val)
@@ -121,17 +123,16 @@ define [
           theSearchView,
           new ArtistsView(@artists, services)
         )
-        @albumsView = new ReleaseCollection(@recentReleases, services)
+        @recentReleasesView = new ReleaseCollection(@recentReleases, services)
 
-        @player = new Player(services.get('player'))
 
         @tabs = new ContentView
           artists: @artistSearchView
-          albums:  @albumsView
+          recent:  @recentReleasesView
         $('.container').append(@tabs.el, @player.el)
 
         @bus.on 'route:enter:index', => @tabs.select('artists').done()
-        @bus.on 'route:enter:new',   => @tabs.select('albums').done()
+        @bus.on 'route:enter:new',   => @tabs.select('recent').done()
 
         router(@vent)
       .then => w.all [

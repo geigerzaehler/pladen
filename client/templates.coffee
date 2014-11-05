@@ -6,6 +6,7 @@ define [
 , 'hgn!templates/player'
 , 'hgn!templates/artist-album'
 , 'hgn!templates/artist-track'
+, 'hgn!templates/track-release'
 , 'hgn!templates/track-context-menu'
 , 'text!templates/drag-track.mustache'
 ], (
@@ -14,8 +15,10 @@ define [
   player
   artistAlbum
   artistTrack
+  trackRelease
   trackContextMenu
   dragTrackSrc
 )->
   dragTrack = -> domTemplate(dragTrackSrc)
-  return {search, artistAlbum, artistTrack, player, trackContextMenu, dragTrack}
+  return {search, artistAlbum, artistTrack, trackRelease
+    player, trackContextMenu, dragTrack}

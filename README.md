@@ -63,6 +63,9 @@ This is an overview of all the client files and what they do.
 * `filter` Create functions that test if a model satisfier a given
   filter.
 
+* `views/search` Filter the artist view by a string and the
+  'downloadable' property.
+
 The following modules should be replaced
 
 * `global`

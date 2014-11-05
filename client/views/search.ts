@@ -3,6 +3,8 @@
 import Bacon = require('bacon');
 import View = require('views/base/view2');
 import tpls = require('templates');
+import filter = require('filter')
+import Filter = filter.Filter
 
 /**
  * UI for search input and download toggle
@@ -10,17 +12,8 @@ import tpls = require('templates');
  * Also exposes a perma-link to the current search.
  */
 export class SearchView extends View.View {
-    /**
-     * Value of the search input
-     *
-     * This is piped into `searchFragment`.
-     */
-    search: Bacon.Property<string>;
 
-    /**
-     * Value of the 'download' toggle
-     */
-    downloadable: Bacon.Property<boolean>;
+    filter: Bacon.Property<Filter>;
 
     /**
      * Sets the search string for the search's perma-link.
@@ -40,16 +33,25 @@ export function searchView() {
     var searchInput = view.eventStream('input', 'input');
     var searchChange = view.eventStream('change', 'input');
 
-    view.search =
+    var search =
         searchInput.merge(searchChange)
         .map((_) => view.ui('input').val())
         .toProperty('');
 
-    view.downloadable =
+    var downloadable =
         view.eventStream('click', '.search-downloadable')
         .scan(false, (state, _) => !state);
-    view.downloadable.assign(view.ui('.search-downloadable'),
-                             'toggleClass', 'checked');
+    downloadable.assign(view.ui('.search-downloadable'),
+                        'toggleClass', 'checked');
+
+    view.filter = Bacon.combineTemplate<Filter>({
+        downloadable: downloadable,
+        search: search
+    }).map(f => {
+        if (f.downloadable != true)
+            delete f.downloadable
+        return f;
+    });
 
     view.searchFragment = new Bacon.Bus<string>();
     view.searchFragment.onValue((s) => {
@@ -59,6 +61,6 @@ export function searchView() {
             view.$el.find('a').attr('href', null);
     });
     view.searchFragment.push('');
-    view.searchFragment.plug(view.search);
+    view.searchFragment.plug(search);
     return view;
 }

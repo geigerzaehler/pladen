@@ -41,6 +41,8 @@ declare module "bacon" {
       , ...props: Property<any>[]
     ): Property<T>;
 
+    function combineTemplate<T>(t: {[i:string]: Property<any>}): Property<T>;
+
 
     interface Bus<T> extends Stream<T> {
         push(value: T): void;

@@ -43,7 +43,7 @@ define [
   ModalManager
   {AlbumCollectionView, ReleaseCollection}
   ArtistsView
-  {Player}
+  {Player: PlayerView}
   trackContextMenu
   {instance: global}
   oneline
@@ -95,24 +95,17 @@ define [
         oneline(document)
 
         @modal = new ModalManager($('body'))
-        # TODO rename and abstract
+        # TODO Use services
         global.openNoAlbumDownload = @modal.openNoAlbumDownload.bind(@modal)
         global.openMessageDialog = @modal.openMessage.bind(@modal)
         MyView::app = global
 
+
+
         
         theSearchView = searchView()
+        theSearchView.filter.assign global.search, 'dispatch'
 
-        Bacon.combineTemplate(
-          search:  theSearchView.search,
-          downloadable: theSearchView.downloadable
-        ).map((f) ->
-          if f.downloadable is not true
-            delete f.downloadable
-          return f
-        ).assign global.search, 'dispatch'
-
-        @player = new Player(services.get('player'))
 
         this.bus.on 'route:enter:search', (val)->
           theSearchView.$el.find('input').val(val)
@@ -132,9 +125,10 @@ define [
         @tabs = new TabView
           artists: @artistSearchView.el
           recent:  @recentReleasesView.el
-        @tabs.$el.addClass('content')
+        @tabs.$el.addClass('content').appendTo('.container')
 
-        $('.container').append(@tabs.el, @player.el)
+        @player = new PlayerView(services.get('player'))
+        @player.$el.appendTo('.container')
 
         @bus.on 'route:enter:index', => @tabs.select('artists').done()
         @bus.on 'route:enter:new',   => @tabs.select('recent').done()

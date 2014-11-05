@@ -2,7 +2,7 @@
 # object.
 define [
   'dom/template'
-, 'text!templates/search.mustache'
+, 'text!templates/search.html'
 , 'hgn!templates/player'
 , 'hgn!templates/artist-album'
 , 'hgn!templates/artist-track'

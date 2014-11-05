@@ -2,9 +2,11 @@
 
 import Bacon = require('bacon');
 import View = require('views/base/view2');
+import dm = require('dom/mutators');
+import dom = require('dom');
 import tpls = require('templates');
-import filter = require('filter')
-import Filter = filter.Filter
+import filter = require('filter');
+import Filter = filter.Filter;
 
 /**
  * UI for search input and download toggle
@@ -30,19 +32,23 @@ export class SearchView extends View.View {
 export function searchView() {
     var view = new SearchView($(tpls.search));
 
-    var searchInput = view.eventStream('input', 'input');
-    var searchChange = view.eventStream('change', 'input');
+    // Search input
+    var searchElement = view.$el.find('input[type=search]');
+    var searchInputStream = dom.eventStream(searchElement, 'input')
+    var searchChangeStream = dom.eventStream(searchElement, 'change');
 
     var search =
-        searchInput.merge(searchChange)
-        .map((_) => view.ui('input').val())
+        searchInputStream.merge(searchChangeStream)
+        .map(_ => searchElement.val())
         .toProperty('');
 
+    // Downloadable checkbox
+    var downloadableToggle = view.$el.find('.search-downloadable');
     var downloadable =
-        view.eventStream('click', '.search-downloadable')
+        dom.eventStream(downloadableToggle, 'click')
         .scan(false, (state, _) => !state);
-    downloadable.assign(view.ui('.search-downloadable'),
-                        'toggleClass', 'checked');
+    downloadable.assign(downloadableToggle, 'toggleClass', 'checked');
+
 
     view.filter = Bacon.combineTemplate<Filter>({
         downloadable: downloadable,
@@ -53,12 +59,15 @@ export function searchView() {
         return f;
     });
 
+
+    // Link to search URL
+    var setSearchFragment = dm.attr('href', view.$el, 'a');
     view.searchFragment = new Bacon.Bus<string>();
     view.searchFragment.onValue((s) => {
         if (s)
-            view.$el.find('a').attr('href', '#/q/' + s);
+            setSearchFragment('#/q/' + s);
         else
-            view.$el.find('a').attr('href', null);
+            setSearchFragment(null);
     });
     view.searchFragment.push('');
     view.searchFragment.plug(search);

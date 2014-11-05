@@ -46,7 +46,7 @@ module.exports = function(config) {
 
       // Client source files
       {pattern: 'client/**/*.js', included: false},
-      {pattern: 'client/**/*.mustache', included: false},
+      {pattern: 'client/templates/*', included: false},
 
       // Tests
       {pattern: 'test/client/**/*.coffee', included: false}

@@ -47,7 +47,7 @@ export class Player extends View {
 
     private setupDragEvents() {
         var dragDropStream = dom.dragDropStream(
-            this.$('.player-drop-target')[0],
+            this.$el.find('.player-drop-target')[0],
             'application/x-play-track'
         );
 

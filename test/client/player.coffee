@@ -8,11 +8,11 @@ define ['views/player2', 'player', 'support', 'support/audio', 'support/events']
 
     describe 'playlist', ->
       Given 'a player', -> new Player(player.init())
-      And 'the playlist', -> @player.$('.player-playlist-window')
+      And 'the playlist', -> @player.$el.find('.player-playlist-window')
 
       Then 'playlist', should.have.attr('aria-hidden')
 
-      When -> @player.$('.player-toggle-playlist').click()
+      When -> @player.$el.find('.player-toggle-playlist').click()
       Then 'playlist', should.not.have.attr('aria-hidden')
 
     describe 'playing and pausing', ->
@@ -24,8 +24,8 @@ define ['views/player2', 'player', 'support', 'support/audio', 'support/events']
 
       Given 'a player', -> new Player(player.init())
       And 'player element', -> @player.$el
-      And 'player control', -> @player.$('.player-control-play')
-      And 'drop target', -> @player.$('.player-drop-target')[0]
+      And 'player control', -> @playerElement.find('.player-control-play')
+      And 'drop target', -> @playerElement.find('.player-drop-target')[0]
       And 'track', id: 1, title: 'Song 2', artist: 'Blur', length: 200
 
 

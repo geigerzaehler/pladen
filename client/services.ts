@@ -18,6 +18,11 @@ export class Provider implements I.Provider {
         if (!name)
             throw Error('Provided service is missing a name');
         this.services[name] = service;
+        return this;
+    }
+
+    extend() {
+        return new Provider(this);
     }
 
     get player() { return this.get('player') }

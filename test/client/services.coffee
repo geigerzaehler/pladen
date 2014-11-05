@@ -34,9 +34,16 @@ define ['services', 'support']
 
     # Initialize service once
     When 'init', -> sinon.spy(-> 'a')
-    When -> @provider.provide('a', service @init)
+    When -> @provider.provide service('a', @init)
     When ->
       @provider.get('a')
       @provider.get('a')
       @provider.get('a')
     Then 'init', sinon.assert.calledOnce
+
+    # Child provider
+    Given 'child', -> @provider.extend()
+    When -> @child.provide service('a', ['b'], (b)-> b)
+    When -> @provider.provide service('b', -> 'b')
+    When 'service', -> @child.get('a')
+    Then 'service', should.equal('b')

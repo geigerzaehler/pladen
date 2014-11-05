@@ -1,13 +1,13 @@
 define ['services', 'support']
 , (
-  {Provider, service},
+  {Provider, globalProvider, service},
   {should, sinon}
 )->
 
   describe 'services', ->
 
     Given 'a provider', -> new Provider
-    Given -> Provider.globalServices = {}
+    Given -> globalProvider.services = {}
 
     # Simple service
     When -> @provider.provide('a', service -> 'no deps')
@@ -29,8 +29,7 @@ define ['services', 'support']
 
     # Global services
     When -> service 'a', -> 'this is a'
-    When -> @provider.useGlobalServices()
-    When 'service', -> @provider.get('a')
+    When 'service', -> globalProvider.get('a')
     Then 'service', should.equal('this is a')
 
     # Initialize service once

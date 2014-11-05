@@ -1,30 +1,15 @@
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
+/// <reference path="./services.d.ts" />
 import _ = require('underscore');
+import I = require('services')
 var map = _.map;
 var each = _.each;
 
-import Track = require('models/track');
+export class Provider implements I.Provider {
 
-export interface DragTrack {
-    (e: JQuery, getTrack: (id: number) => Track.Attributes);
-}
+    constructor(private parent?: I.Provider) {}
 
-export interface Player {
-    play(track: Track.Attributes);
-}
-
-export interface TrackContextMenu {
-    (el: JQuery, getTrack: (id: number) => Track.Attributes);
-}
-
-
-export class Provider {
-
-    static globalServices: {[name: string]: Service<any>[]} = {};
-
-    provide(name: string, s: Service<any>);
-    provide(s: Service<any>);
     provide(name, service?) {
         if (typeof name != 'string') {
             service = name
@@ -35,10 +20,10 @@ export class Provider {
         this.services[name] = service;
     }
 
-    get(name: "track-context-menu"): TrackContextMenu;
-    get(name: "player"): Player;
-    get(name: "drag-track"): DragTrack;
-    get(name: string): any;
+    get player() { return this.get('player') }
+    get trackContextMenu() { return this.get('track-context-menu') }
+    get dragTrack() { return this.get('drag-track') }
+
     get(name: string): any {
         var instance = this.instances[name]
         if (typeof instance == 'undefined')
@@ -46,20 +31,14 @@ export class Provider {
         return instance;
     }
 
-    useGlobalServices() {
-        each(Provider.globalServices, (services, name) => {
-            if (this.services[name])
-                return;
-            if (services.length > 1)
-                throw Error('Global service "' + name + '" is not unique');
-            this.services[name] = services[0];
-        })
-    }
-
     private resolve(name: string) {
-        var service = this.services[name]
-        if (typeof service == 'undefined')
-            throw Error('Service "' + name + '" not provided');
+        var service = this.services[name];
+        if (typeof service == 'undefined') {
+            if (this.parent)
+                return this.parent.get(name);
+            else
+                throw Error('Service "' + name + '" not provided');
+        }
         if (this.resolving.indexOf(name) >= 0)
             throw Error('Circular dependency in requiring ' + name);
 
@@ -74,6 +53,7 @@ export class Provider {
     private instances: {[name: string]: any} = {};
     private resolving: string[] = [];
 }
+export var globalProvider = new Provider();
 
 
 export function service<T>(name: string, init: (...any) => T): Service<T>;
@@ -92,10 +72,8 @@ export function service<T>(...args) {
         deps = [];
     }
     var service = new Service<T>(name, deps, init);
-    if (service.name) {
-        Provider.globalServices[name] = Provider.globalServices[name] || [];
-        Provider.globalServices[name].push(service);
-    }
+    if (service.name)
+        globalProvider.provide(service);
     return service;
 }
 

@@ -71,6 +71,7 @@ export class ReleaseCollection extends View {
 }
 
 
+// TODO use new view
 export class TrackView extends DataTemplate {
     get elementTemplate()
     { return '<li class=track>' }
@@ -81,9 +82,7 @@ export class TrackView extends DataTemplate {
     constructor(private track: Track.Track, services: Provider) {
         super(track);
         this.render();
-
-        var dragTrack = services.get('drag-track');
-        dragTrack(this.$el, () => this.track);
+        services.dragTrack(this.$el, () => this.track);
     }
 
     render() {
@@ -191,15 +190,14 @@ export class AlbumExpansion extends DataTemplate {
      */
     loading = new Signal<Promise<void>>();
 
-    constructor(public album: A.Album, p: Provider) {
+    constructor(public album: A.Album, services: Provider) {
         super(album);
         album.changed.add(() => {
             this.render();
         })
 
         if (this.album.downloadable) {
-            var trackMenu = p.get('track-context-menu')
-            trackMenu(this.$el, trackFromId)
+            services.trackContextMenu(this.$el, trackFromId)
         }
 
         function trackFromId(id: any) {
@@ -208,8 +206,7 @@ export class AlbumExpansion extends DataTemplate {
             });
         }
 
-        var dragTrack = p.get('drag-track');
-        dragTrack(this.$el, trackFromId);
+        services.dragTrack(this.$el, trackFromId);
     }
 
     toggle(show?: boolean) {

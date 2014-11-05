@@ -8,6 +8,7 @@ import tpls = require('templates');
 
 
 import Services = require('services');
+import Provider = Services.Provider;
 import DataTemplateView = require('./base/data_template');
 import View = require('./base/view');
 import filter = require('filter');
@@ -44,7 +45,7 @@ class ArtistsView extends View {
         return '<ol class=artist-list>';
     }
 
-    constructor(public artists: Artist.Collection, private services: Services.Provider) {
+    constructor(public artists: Artist.Collection, private services: Provider) {
         super();
         this.app.search.add((f) => {
             this.filter(f);
@@ -111,7 +112,7 @@ class ArtistView extends DataTemplateView {
         return 'artist';
     }
 
-    constructor(public artist: Artist.Model, private services: Services.Provider) {
+    constructor(public artist: Artist.Model, private services: Provider) {
         super(artist);
         artist.changed.add(() => { this.render() });
         this.render();
@@ -151,7 +152,7 @@ interface ReleaseView {
 
 
 class AlbumView implements ReleaseView {
-    constructor(a: Album, s: Services.Provider) {
+    constructor(a: Album, s: Provider) {
         this.album = a;
         this.$el = $(tpls.artistAlbum(a));
 
@@ -188,17 +189,15 @@ class AlbumView implements ReleaseView {
  * TODO Make it possible to listen to a track.
  */
 class TrackView implements ReleaseView {
-    constructor(t: Track.Track, s: Services.Provider) {
+    constructor(t: Track.Track, s: Provider) {
         this.track = t;
         this.$el = $(tpls.artistTrack(t));
 
         if (t.downloadable) {
             this.$el.attr('draggable', 'true');
             this.$el.attr('data-track-id', t.id);
-            var dragTrack = s.get('drag-track');
-            dragTrack(this.$el, () => t);
-            var addTrackMenu = s.get('track-context-menu');
-            addTrackMenu(this.$el, () => t);
+            s.dragTrack(this.$el, () => t);
+            s.trackContextMenu(this.$el, () => t);
         }
     }
 

@@ -1,7 +1,7 @@
 define ['dialogs', 'support']
 ,      (dialogs, {should, sinon, expect, w, $})->
 
-  describe.only 'dialogs', ->
+  describe 'dialogs', ->
 
     Given 'dialogs', -> dialogs.init()
     Given '$dialogs', -> @dialogs.$el

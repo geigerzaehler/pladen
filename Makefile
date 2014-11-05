@@ -129,6 +129,7 @@ styles: $(STYLE) icomoon
 $(STYLE): $(STYLE_MAIN_SOURCE) $(STYLE_INCLUDES)
 	scss --load-path styles \
 		   --require ./styles/functions.rb \
+			 --sourcemap=none \
 			 $< $@
 	$(CSS_PREFIXER) $@
 

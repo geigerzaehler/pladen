@@ -9,7 +9,6 @@ define [
   'models/release'
   'views/base/view'
   'views/base/tab'
-  'views/base/bag'
   'views/search'
   'views/splash_screen'
   'views/modal_manager'
@@ -37,7 +36,6 @@ define [
   Release
   MyView
   TabView
-  BagView
   {searchView}
   splashScreen
   ModalManager

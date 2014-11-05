@@ -5,6 +5,10 @@ requirejs = require('requirejs')
 
 
 targets = ->
+  vendorPaths = packagePathMap([
+    'hgn'
+  , 'text'
+  ].map(createPackage))
   vendorPackages = [
     'mustache'
   , 'underscore'
@@ -16,11 +20,7 @@ targets = ->
   , 'move'
   , 'superagent'
   , 'hammer'
-  , 'hgn'
   , 'es5-shim'
-  ,
-    name: 'text'
-    main: './text'
   ,
     name: 'hogan'
     main: './web/builds/3.0.2/hogan-3.0.2.amd.js'
@@ -64,17 +64,20 @@ targets = ->
     .map(packageName)
     .filter (name) -> name != 'almond'
     .concat('moment/lang/de')
+    .concat(Object.keys(vendorPaths))
 
 
   vendor:
     baseUrl: bowerBase
     packages: vendorPackages
+    paths: vendorPaths
     include: vendorInclude
     optimize: 'none'
 
   client:
     baseUrl: clientBase
     packages: vendorPackages.map(packagePrefix('../bower_components'))
+    paths: pathsPrefix(vendorPaths, '../bower_components')
     name: 'app'
     include: ['almond']
 
@@ -106,11 +109,24 @@ createPackage = (name)->
   main ||= name
   return {name, location, main}
 
+packagePathMap = (pkgs)->
+  paths = {}
+  for {name, location, main} in pkgs
+    paths[name] = path.join(location, main)
+  paths
+
 
 packagePrefix = (prefix)->
   ({name, location, main})->
     location = path.join(prefix, location)
     {name, location, main}
+
+pathsPrefix = (paths, prefix)->
+  prefixed = {}
+  for k, v of paths
+    prefixed[k] = path.join(prefix, v)
+  prefixed
+
 
 packageName = ({name})-> name
 

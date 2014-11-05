@@ -61,6 +61,6 @@ define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon
 
 
   return {
-    expect, should, nextEvent, Promise, $,
+    expect, should, nextEvent, Promise, $, w: Promise,
     eventStreamPromise, promiseCall, sinon
   }

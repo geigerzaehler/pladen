@@ -65,6 +65,7 @@ watch('karma.conf.js', 'package.json', karma.restart)
 # Styles
 styles = runner('make styles')
 watch 'styles/**/*.scss', styles
+watch 'test/interact/**/*.scss', styles
 
 
 # Lint

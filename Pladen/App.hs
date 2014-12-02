@@ -13,13 +13,12 @@ module Pladen.App (
 ) where
 
 import Control.Applicative
-import Data.Monoid (mappend, mconcat, (<>))
-import Data.Set (Set, toList)
-import Data.ByteString.Builder
+import Data.List (stripPrefix)
+import qualified Data.Text as T
 
-import System.FilePath (splitExtension, addExtension)
+import System.FilePath ( splitExtension, addExtension
+                       , splitPath, joinPath )
 
-import qualified Network.HTTP.Types.Status as H
 import           Network.Wai
 import           Network.Wai.Middleware.Gzip (gzip, def)
 import qualified Network.Wai.Middleware.Static as Static
@@ -36,61 +35,70 @@ import Pladen.App.Environment
 app :: Environment -> Application
 app env =
       gzip def
-    . static "./static"
-    . index
-    $ main
-    where
-        main :: Application
-        main = controllerApp env $ do
-            routePattern "assets" $ fromApp $ assets env
-            -- TODO us this used?
-            routePattern "files" $ do
-                fs <- uploadedFiles <$> getUploadedFiles
-                respond $ okHtml $ toLazyByteString fs
-            api
-
-        uploadedFiles :: Set FilePath -> Builder
-        uploadedFiles = mconcat . map line . toList
-            where line p = stringUtf8 p <> charUtf8 '\n'
-
-        index :: Middleware
-        index = Static.staticPolicy $ Static.only [("", "./index.html")]
+    . serveFiles env
+    $ controllerApp env api
 
 
--- | Application that serves files from the "assets" directory.
---
--- If "file.js" is requested it will serve "file.min.js" if that file
--- exists.
---
--- If the environment is in development mode it will also serve files
--- from the "./client" directory and prefer "file.dev.js" when
--- requesting "file.js".
-assets :: Environment -> Application
-assets env = devMinRewrite
-           . staticClient
-           . static "./assets"
-           $ notFound
+serveFiles :: Environment -> Middleware
+serveFiles env = index
+               . static "./static"
+               . mount "assets" assets
+               . mount "test" (dev test)
     where
         isDev' = isDev $ config env
-        devMinRewrite | isDev'     = staticRewrite (addExt "dev") "./assets"
-                      | otherwise  = staticRewrite (addExt "min") "./assets"
-        staticClient  | isDev'     = static "./client"
-                      | otherwise  = id
+
+        dev :: Middleware -> Middleware
+        dev m = if isDev' then m else id
+
+        index :: Middleware
+        index = staticOnly "" "./index.html"
+
+        test :: Middleware
+        test = static "./test/interact"
+             . staticOnly "" "./test/interact/index.html"
+
+        -- | Application that serves files from the "assets" directory.
+        --
+        -- If "file.js" is requested it will serve "file.min.js" if that file
+        -- exists.
+        --
+        -- If the environment is in development mode it will also serve files
+        -- from the "./client" directory and prefer "file.dev.js" when
+        -- requesting "file.js".
+        assets :: Middleware
+        assets = tryRewrite (addExt ext) (static "./assets")
+               . dev (static "./client")
+
+        ext = if isDev' then "dev" else "min"
 
 
--- | Sends an empty response with a 404 status code
-notFound :: Application
-notFound = const $ return $ responseLBS H.status404 [] ""
+
+mount :: FilePath -> Middleware -> Middleware
+mount path m fallback req =
+    maybe (fallback req)
+          (\p -> m fallback $ req {pathInfo = p})
+          (stripPrefix path' $ pathInfo req)
+    where path' = T.pack <$> splitPath path
+
 
 static :: String -> Middleware
 static = Static.staticPolicy . Static.addBase
 
-staticRewrite :: (String -> String) -> FilePath -> Middleware
-staticRewrite rewrite base = Static.staticPolicy $
-                             Static.addBase base
-                   `mappend` Static.policy (Just . rewrite)
 
-addExt :: FilePath -> String -> FilePath
+staticOnly :: String -> String -> Middleware
+staticOnly p t = Static.staticPolicy $ Static.only [(p, t)]
+
+
+tryRewrite :: (FilePath -> FilePath) -> Middleware -> Middleware
+tryRewrite t m fallback req = m original $ req {pathInfo = rewritten}
+    where
+        original :: Application
+        original _ = m fallback req
+        rewritten = fmap T.pack . splitPath
+                  . t . joinPath . fmap T.unpack . pathInfo $ req
+
+
+addExt :: String -> FilePath -> FilePath
 addExt ext path = let (base, oldExt) = splitExtension path
                       extBase = addExtension base ext
                   in extBase ++ oldExt

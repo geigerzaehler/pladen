@@ -111,12 +111,14 @@ $(WEBAPP_DEV): $(AMD_BUILD) $(BOWER_COMPONENTS)
 # Rules
 
 %.js: %.coffee
-	coffee --compile $<
+	@echo -n COFFEE $< ...
+	@coffee --compile $<
+	@echo OK
 
 %.js: %.ts
 	@echo -n tsc $< ...
 	@tsc --module amd --target ES5 $<
-	@echo ok
+	@echo OK
 
 
 # Built the main stylesheet with SASS
@@ -124,13 +126,23 @@ STYLE = $(ASSETS)/style.css
 STYLE_MAIN_SOURCE = styles/main.scss
 STYLE_INCLUDES = $(shell find styles -type f) $(ICOMOON_STYLE)
 
-styles: $(STYLE) icomoon
+TEST_STYLE=test/interact/style.css
+TEST_STYLE_SOURCE=test/interact/style.scss
+
+styles: $(STYLE) $(TEST_STYLE) icomoon
 
 $(STYLE): $(STYLE_MAIN_SOURCE) $(STYLE_INCLUDES)
 	scss --load-path styles \
-		   --require ./styles/functions.rb \
-			 --sourcemap=none \
-			 $< $@
+	     --require ./styles/functions.rb \
+	     --sourcemap=none \
+	     $< $@
+	$(CSS_PREFIXER) $@
+
+$(TEST_STYLE): $(TEST_STYLE_SOURCE) $(STYLE)
+	scss --load-path styles \
+	     --require ./styles/functions.rb \
+	     --sourcemap=none \
+	     $< $@
 	$(CSS_PREFIXER) $@
 
 # IcoMoon fonts and styles will be added to the assets
@@ -170,10 +182,9 @@ CABAL_SANDBOX = cabal.sandbox.config
 server: $(SERVER_BIN)
 
 $(SERVER_BIN): $(CABAL_SERVER_BIN)
-	cp -f $< $@
+	#cp -af $< $@
 
 $(CABAL_SERVER_BIN): $(CABAL_DEPS) $(SERVER_SOURCES)
-	cabal configure
 	cabal build
 	touch $@
 

@@ -1,0 +1,16 @@
+@import "../../styles/main";
+
+.container {
+  margin-top: rhythm(2);
+}
+
+h2 {
+  font-size: font-scale(2);
+  font-weight: bold;
+  margin-bottom: font-scale(-1);
+}
+
+button {
+  @extend %button;
+  border-radius: 5px;
+}

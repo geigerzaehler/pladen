@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+  <title>Thomas’ Musik Interaction test</title>
+  <link rel="stylesheet" href="/test/style.css">
+  <script src="/assets/boot.js"></script>
+  <script>
+    require.config({baseUrl: '/assets'});
+    require(['jquery', 'services', 'dialogs'], function($, s) {
+      var dialogs = s.globalProvider.get('dialogs')
+      $('button[data-action=show-message]')
+      .on('click', function() {
+        dialogs.message($('input[name=message]').val())
+      })
+
+      $('button[data-action=show-message]')
+      .on('click', function() {
+        return
+        dialogs.message($('input[name=message]').val())
+      })
+    });
+  </script>
+
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <meta charset="utf-8">
+</head>
+
+<body>
+  <div class="container">
+    <h2>Dialogs</h2>
+    <button data-action="show-message">Show message</button>
+    <input type="text" name="message" value="Hello">
+  </div>
+</body>

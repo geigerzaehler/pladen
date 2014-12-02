@@ -1,6 +1,5 @@
 define ->
 
-
   class DataTransfer
     constructor: (@data = {})->
       @types = Object.getOwnPropertyNames(@data)

@@ -44,6 +44,15 @@ define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon
           reject(event)
         Bacon.noMore
 
+  promiseProperty = (property)->
+    Promise.promise (resolve, reject)->
+      property.subscribe (event)->
+        if event.isInitial()
+          resolve(event.value())
+        else
+          reject(event)
+        return Bacon.noMore
+
 
   # Return a promise that is fullfilled when the method is called on
   # the object.
@@ -62,5 +71,5 @@ define ['chai', 'when', 'jquery', 'chai-builder', 'chai-jquery', 'bacon', 'sinon
 
   return {
     expect, should, nextEvent, Promise, $, w: Promise,
-    eventStreamPromise, promiseCall, sinon
+    eventStreamPromise, promiseProperty, promiseCall, sinon
   }

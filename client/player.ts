@@ -38,9 +38,17 @@ export class Player implements services.Player {
     constructor() {
         this.backend = new Audio();
         this.backend.preload = 'auto';
+        this.playlist = new Playlist();
 
         this._currentTrack = new Bacon.Bus();
         this.currentTrack = this._currentTrack.toProperty(undefined);
+
+        Bacon.fromEventTarget(this.backend, 'ended')
+        .onValue(() => {
+            var nextTrack = this.playlist.shift();
+            if (nextTrack)
+                this.play(nextTrack);
+        });
 
         // Current time and duration
         this.currentTime =
@@ -95,9 +103,22 @@ export class Player implements services.Player {
 
 
     private backend: HTMLAudioElement;
+    private playlist: Playlist;
     private _currentTrack: Bacon.Bus<Track.Attributes>;
     private _isPlaying: boolean;
 }
 
+export class Playlist {
+
+    tracks: Array<Track.Attributes> = [];
+
+    push(t: Track.Attributes) {
+        this.tracks.push(t);
+    }
+
+    shift(): Track.Attributes {
+        return this.tracks.shift();
+    }
+}
 
 function snd<T>(x: any, y: T): T { return y }

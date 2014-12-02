@@ -10,5 +10,6 @@ dist
 assets
 bin/server
 client/**/*.js
+*.css
 icomoon
 album_requests.log

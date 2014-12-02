@@ -1,7 +1,7 @@
 define ['views/player', 'player', 'support', 'support/audio', 'support/events']
 , (Player, {player}, {should, promiseCall}, Audio, {DragEvent})->
 
-  describe 'player', ->
+  describe 'player view', ->
 
     before -> Audio.mock(window)
     after  -> Audio.restore()

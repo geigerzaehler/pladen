@@ -20,6 +20,9 @@ define ['event-target', 'support/events'], (EventTarget, {Event})->
       @currentTime = played
       @dispatchEvent Event 'timeupdate'
 
+    end: ->
+      @dispatchEvent Event 'ended'
+
     addEventListener: EventTarget.addEventListener
     dispatchEvent: EventTarget.dispatchEvent
     removeEventListener: EventTarget.removeEventListener

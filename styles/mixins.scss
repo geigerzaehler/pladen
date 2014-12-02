@@ -38,6 +38,7 @@
 
 
 @mixin button {
+  @include button-reset;
   display: inline-block;
   padding-left:  1em;
   padding-right: 1em;
@@ -73,6 +74,8 @@
     background-color:    darken($teal, 4%);
   }
 }
+%button { @include button }
+
 
 
 @mixin fader {

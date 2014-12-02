@@ -15,6 +15,6 @@ define ['player', 'support', 'support/audio', 'support/events']
     When.value 'second played track', ->
       eventStreamPromise(@player.currentTrack.skip(2))
     When -> @player.play(firstTrack)
-    And  -> @player.playlist.push(secondTrack)
+    And  -> @player.queue(secondTrack)
     And  -> @audio.end()
     Then 'second played track', should.deep.equal(secondTrack)

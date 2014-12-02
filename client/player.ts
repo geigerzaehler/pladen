@@ -1,6 +1,8 @@
 /// <reference path="../typings/bacon.d.ts" />
 import Bacon = require('bacon');
 
+import splice = require('utils/splice');
+
 import services = require('services');
 import service = services.service;
 import Service = services.Service;
@@ -17,10 +19,16 @@ export class Player implements services.Player {
     playProgress: Bacon.Property<number>;
     bufferProgress: Bacon.Property<number>;
 
-    play(track: Track.Attributes) {
-        this._currentTrack.push(track);
-        this.backend.src = '/track/' + track.id + '/file';
+    playlist: Playlist;
+
+    play(track?: Track.Attributes) {
+        if (track)
+            this.playlist.set(track);
         this.backend.play();
+    }
+
+    queue(track: Track.Attributes) {
+        this.playlist.queue(track);
     }
     
     pause() {
@@ -44,10 +52,14 @@ export class Player implements services.Player {
         this.currentTrack = this._currentTrack.toProperty(undefined);
 
         Bacon.fromEventTarget(this.backend, 'ended')
-        .onValue(() => {
-            var nextTrack = this.playlist.shift();
-            if (nextTrack)
-                this.play(nextTrack);
+        .onValue(() => this.playlist.next());
+
+        this.playlist.current.onValue(t => {
+            if (t)
+                this.backend.src = '/track/' + t.id + '/file';
+            else
+                this.backend.src = null;
+            this._currentTrack.push(t);
         });
 
         // Current time and duration
@@ -103,22 +115,47 @@ export class Player implements services.Player {
 
 
     private backend: HTMLAudioElement;
-    private playlist: Playlist;
     private _currentTrack: Bacon.Bus<Track.Attributes>;
     private _isPlaying: boolean;
 }
 
 export class Playlist {
 
-    tracks: Array<Track.Attributes> = [];
+    changes: Bacon.Stream<splice.Splice<Track.Attributes>>;
+    current: Bacon.Property<Track.Attributes>;
 
-    push(t: Track.Attributes) {
-        this.tracks.push(t);
+    constructor() {
+        this.tracks = [];
+        this._changes = new Bacon.Bus();
+        this.changes = this._changes;
+        this._current = new Bacon.Bus();
+        this.current = this._current.toProperty();
     }
 
-    shift(): Track.Attributes {
-        return this.tracks.shift();
+    queue(t: Track.Attributes) {
+        if (!this.tracks.length && !this._current_track) {
+            this.set(t);
+        } else {
+            this._changes.push(splice.insert(this.tracks.length, [t]))
+            this.tracks.push(t);
+        }
     }
+
+    set(t: Track.Attributes) {
+        this._current_track = t;
+        this._current.push(t);
+    }
+
+    next() {
+        this._changes.push(splice.remove(0, 1));
+        this._current_track = this.tracks.shift();
+        this._current.push(this._current_track);
+    }
+
+    private tracks: Array<Track.Attributes>;
+    private _changes: Bacon.Bus<splice.Splice<Track.Attributes>>;
+    private _current: Bacon.Bus<Track.Attributes>;
+    private _current_track: Track.Attributes;
 }
 
 function snd<T>(x: any, y: T): T { return y }

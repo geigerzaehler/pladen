@@ -5,12 +5,12 @@ import moment = require('moment');
 import services = require('services');
 import service = services.service;
 import Service = services.Service;
-import player = require('../player');
-import Backend = player.Player
+import Backend = require('../player');
 
 import css = require('css_promise');
 import dom = require('dom');
 import dm = require('dom/mutators');
+import splice = require('utils/splice');
 import templates = require('templates');
 
 import ViewModule = require('views/base/view2');
@@ -20,9 +20,12 @@ import Track = require('models/track');
 
 
 class Player extends View {
-    constructor(audio: Backend) {
+    constructor(audio: Backend.Player) {
         this.template = playerTemplate();
         super(this.template.$el);
+
+        this.$el.find('.player-playlist')
+        .replaceWith(new Playlist(audio.playlist).$el);
 
         this.setupDragEvents();
 
@@ -78,10 +81,25 @@ class Player extends View {
     }
 
     private template: PlayerTemplate;
-    private audio: Backend;
+    private audio: Backend.Player;
 }
 export = Player;
 
+
+class Playlist extends View {
+    constructor(p: Backend.Playlist) {
+        super($('<ol class=player-playlist>'));
+
+        p.changes.onValue( s => {
+            var nodes = splice.map(s, this.item);
+            splice.applyNode(this.el, nodes);
+        });
+    }
+
+    item(t: Track.Attributes): HTMLElement {
+        return $('<li>').text(t.title)[0];
+    }
+}
 
 /**
  * Template abstraction for the player

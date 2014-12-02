@@ -10,6 +10,7 @@ declare module "services" {
 
     export interface Player {
         play(track: Track.Attributes);
+        queue(track: Track.Attributes);
     }
 
     export interface TrackContextMenu {

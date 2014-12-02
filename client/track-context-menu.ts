@@ -27,6 +27,9 @@ function init(player: s.Player) {
             var play = player.play.bind(player, getTrack(parseInt(id)));
             $el.on('click', '[data-action=play]', play);
 
+            var queue = player.queue.bind(player, getTrack(parseInt(id)));
+            $el.on('click', '[data-action=queue]', queue);
+
             var targetRect = target.getBoundingClientRect();
             var parentRect = parent.getBoundingClientRect();
             $el.css({

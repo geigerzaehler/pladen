@@ -4,7 +4,7 @@ define ['track-context-menu', 'services', 'support']
   describe 'track context menu', ->
 
     Given 'track', -> {}
-    Given 'player', -> {play: sinon.stub()}
+    Given 'player', -> {play: sinon.stub(), queue: sinon.stub()}
     Given 'track el', -> $('<div><button data-track-id=2>')
     Given 'document', -> $(document)
     Given 'register menu', ->
